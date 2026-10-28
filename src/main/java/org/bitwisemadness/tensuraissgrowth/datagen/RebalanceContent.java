@@ -125,18 +125,25 @@ public final class RebalanceContent {
     private static final double EP_GAIN_DEFAULT = 0.03d;
 
     // --- Item tables ----------------------------------------------------------
+    // Every id in these tables is FULL (namespace + path): chain
+    // evolutionOptions are ResourceLocation-parsed by Gear Evolution, and a
+    // bare path would land in the minecraft namespace, be filtered as absent
+    // and silently flatten a fork into a terminal (caught live by the
+    // datapack_references_resolve GameTest).
 
     private static final String ISAS = "irons_spellbooks:";
 
-    /** Fork books: floor, gate, and the within-tier sibling fork targets. */
-    private static final List<String> WIMPY_FORK = List.of("copper_spell_book", "rotten_spell_book");
-    private static final List<String> COMMON_FORK = List.of("iron_spell_book", "blaze_spell_book");
-    private static final List<String> UNCOMMON_FORK = List.of("villager_spell_book", "gold_spell_book");
+    /** Fork books: the within-tier sibling fork targets, all full ids. */
+    private static final List<String> WIMPY_FORK = List.of(ISAS + "copper_spell_book", ISAS + "rotten_spell_book");
+    private static final List<String> COMMON_FORK = List.of(ISAS + "iron_spell_book", ISAS + "blaze_spell_book");
+    private static final List<String> UNCOMMON_FORK = List.of(ISAS + "villager_spell_book",
+            ISAS + "gold_spell_book");
     /** diamond's fork: the three ISAS school books plus wind_spell_book (joins per D4). */
-    private static final List<String> SCHOOL_FORK = List.of("ice_spell_book", "druidic_spell_book",
-            "netherite_spell_book", "wind_spellbooks:wind_spell_book");
-    private static final List<String> LEGENDARY_FORK = List.of("evoker_spell_book", "cursed_doll_spell_book",
-            "necronomicon_spell_book", "dragonskin_spell_book", "legendary_spell_book");
+    private static final List<String> SCHOOL_FORK = List.of(ISAS + "ice_spell_book", ISAS + "druidic_spell_book",
+            ISAS + "netherite_spell_book", "wind_spellbooks:wind_spell_book");
+    private static final List<String> LEGENDARY_FORK = List.of(ISAS + "evoker_spell_book",
+            ISAS + "cursed_doll_spell_book", ISAS + "necronomicon_spell_book", ISAS + "dragonskin_spell_book",
+            ISAS + "legendary_spell_book");
 
     /** School armor sets: 11 schools x 4 slots plus the 5-piece wizard set. */
     private static final List<String> ARMOR_SCHOOLS = List.of(
@@ -196,20 +203,24 @@ public final class RebalanceContent {
     private static final int ATWG_ARMOR_TIER_3_FLOOR = 1000000;
 
     /** netherite_spell_book's fork: the five legendary books plus the ATWG ladder's first rung. */
-    private static final List<String> NETHERITE_FORK = List.of("evoker_spell_book", "cursed_doll_spell_book",
-            "necronomicon_spell_book", "dragonskin_spell_book", "legendary_spell_book",
-            "allthewizardgear:allthemodium_spell_book");
+    private static final List<String> NETHERITE_FORK = List.of(ISAS + "evoker_spell_book",
+            ISAS + "cursed_doll_spell_book", ISAS + "necronomicon_spell_book", ISAS + "dragonskin_spell_book",
+            ISAS + "legendary_spell_book", "allthewizardgear:allthemodium_spell_book");
 
     // --- Gear the official integration skips (issue #4) ------------------------
 
     /**
-     * The ISAS items with no official band at all (issue #4). The plan's
-     * original list also named an "improved blood staff" and an "illusioner
-     * spell book" - neither exists in irons_spellbooks 3.16.3 (verified
-     * against the jar's item models), so the real coverage is these six.
+     * The ISAS items with no official band that actually exist in
+     * irons_spellbooks 3.16.3 (issue #4). The recovered plan's original list
+     * named eight - four are phantom references kept alive only by orphan
+     * model/lang entries and were verified absent from every class in the jar
+     * (and, for the base book, from the live registry by the
+     * {@code datapack_references_resolve} GameTest): "improved blood staff",
+     * "illusioner spell book", {@code truthseeker}, and the base
+     * {@code spell_book}.
      */
     private static final List<String> SKIPPED_WEAPONS = List.of(
-            "truthseeker", "staff_of_the_nines", "claymore", "cinderous_soulcaller");
+            "staff_of_the_nines", "claymore", "cinderous_soulcaller");
 
     /** Every file the pack ships, grouped by the ladder it belongs to. */
     public record Content(
@@ -262,15 +273,15 @@ public final class RebalanceContent {
         // so no milestone could ever fire and none are carried (native rate key
         // is absent; omitted, codec default 0.03).
         for (String book : UNCOMMON_FORK) {
-            put(issGear, ISS_GEAR + book + ".json",
-                    gear(ISAS + book, 7000, DIAMOND_GATE, null, null, null, ISAS + "diamond_spell_book"));
+            put(issGear, ISS_GEAR + path(book) + ".json",
+                    gear(book, 7000, DIAMOND_GATE, null, null, null, ISAS + "diamond_spell_book"));
         }
 
         // The five legendary books are the ladder's keep-earning top: plain
         // terminals carrying the full weapon spine.
         for (String book : LEGENDARY_FORK) {
-            put(issGear, ISS_GEAR + book + ".json",
-                    gear(ISAS + book, 15000, null, null, weaponSpine(15000, null), null, null));
+            put(issGear, ISS_GEAR + path(book) + ".json",
+                    gear(book, 15000, null, null, weaponSpine(15000, null), null, null));
         }
     }
 
@@ -369,15 +380,12 @@ public final class RebalanceContent {
     // --- Gear the official integration skips (issue #4) --------------------------
 
     /**
-     * The six ISAS items with no official band. Placed by tier: the base
-     * spell book is the starter that steps into wimpy at the first gate; the
-     * frosted helve is a mid-tier weapon stepping into the ice staff at the
-     * legendary gate; the four endgame pieces join the fifteen-thousand
-     * weapons on the mithril hand-off.
+     * The four ISAS items with no official band (issue #4), placed by tier:
+     * the frosted helve is a mid-tier weapon stepping into the ice staff at
+     * the legendary gate; the three endgame pieces join the
+     * fifteen-thousand weapons on the mithril hand-off.
      */
     private static void addSkippedGear(Map<String, JsonObject> issGear) {
-        put(issGear, ISS_GEAR + "spell_book.json",
-                gear(ISAS + "spell_book", 1000, WIMPY_GATE, null, null, null, ISAS + "wimpy_spell_book"));
         put(issGear, ISS_GEAR + "frosted_helve.json",
                 gear(ISAS + "frosted_helve", SCHOOL_TIER_GATE, LEGENDARY_GATE, null,
                         weaponSpine(SCHOOL_TIER_GATE, LEGENDARY_GATE), null, ISAS + "ice_staff"));
@@ -461,7 +469,12 @@ public final class RebalanceContent {
     /** {@code data/<namespace>/gear_existence/<path>.json} for a full item id. */
     private static String gearPathFor(String fullId) {
         int colon = fullId.indexOf(':');
-        return "data/" + fullId.substring(0, colon) + "/gear_existence/" + fullId.substring(colon + 1) + ".json";
+        return "data/" + fullId.substring(0, colon) + "/gear_existence/" + path(fullId) + ".json";
+    }
+
+    /** The path part of a full item id (file names carry no namespace). */
+    private static String path(String fullId) {
+        return fullId.substring(fullId.indexOf(':') + 1);
     }
 
     // --- Entity existence bands (issue #5) --------------------------------------
@@ -626,11 +639,11 @@ public final class RebalanceContent {
     private static void validate(Content content) {
         List<String> errors = new ArrayList<>();
 
-        expect(errors, "gear_existence files (every official file, plus the six the official pack skips)", 93,
+        expect(errors, "gear_existence files (every official file, plus the four the official pack skips)", 91,
                 content.issGearExistence().size());
         expect(errors, "inert companions", 9, count(content.issGearExistence(), json ->
                 json.has("maxEP") && json.get("maxEP").getAsInt() == 0));
-        expect(errors, "plain rungs with evolution", 74, count(content.issGearExistence(), json ->
+        expect(errors, "plain rungs with evolution", 72, count(content.issGearExistence(), json ->
                 json.has("maxEP") && json.get("maxEP").getAsInt() > 0 && json.has("evolution")));
         expect(errors, "plain terminals", 10, count(content.issGearExistence(), json -> !json.has("maxEP")));
         expect(errors, "addon gear files (all four optional addons)", 26, content.addonGearExistence().size());
@@ -638,7 +651,7 @@ public final class RebalanceContent {
         expect(errors, "tensura receiving rungs", 5, content.tensuraGearExistence().size());
         expect(errors, "gear_existence files under the GE namespace (no ISS builtins to neutralise)", 0,
                 content.geGearExistence().size());
-        expect(errors, "total files", 135, content.geGearExistence().size() + content.issGearExistence().size()
+        expect(errors, "total files", 133, content.geGearExistence().size() + content.issGearExistence().size()
                 + content.tensuraGearExistence().size() + content.addonGearExistence().size()
                 + content.addonChains().size() + content.entityExistence().size());
         expect(errors, "entity existence bands", 1, content.entityExistence().size());
@@ -712,7 +725,14 @@ public final class RebalanceContent {
                     String target = option.isJsonObject()
                             ? option.getAsJsonObject().get("id").getAsString()
                             : option.getAsString();
-                    boolean known = content.issGearExistence().containsKey(ISS_GEAR + target.replace(ISAS, "") + ".json")
+                    // Bare paths land in the minecraft namespace when GE parses
+                    // them and get filtered as absent - forks would silently
+                    // flatten to terminals. Full ids or nothing.
+                    if (!ownedNamespace(target) && !target.startsWith("tensura:")) {
+                        errors.add(label + ": fork target " + target
+                                + " is not a full id in an owned or tensura namespace");
+                    }
+                    boolean known = content.issGearExistence().containsKey(gearPathFor(target))
                             || content.addonGearExistence().containsKey(gearPathFor(target));
                     if (!known) {
                         errors.add(label + ": fork target " + target + " has no override file");
@@ -741,7 +761,7 @@ public final class RebalanceContent {
                 continue;
             }
             String target = entry.getValue().get("evolution").getAsString();
-            boolean known = content.tensuraGearExistence().containsKey(TENSURA_GEAR + target.replace("tensura:", "") + ".json")
+            boolean known = content.tensuraGearExistence().containsKey(gearPathFor(target))
                     || allGear.containsKey(gearPathFor(target));
             if (!known) {
                 errors.add(entry.getKey() + ": evolution target " + target + " is not generated by this pack");
@@ -781,12 +801,10 @@ public final class RebalanceContent {
         spotCheckRung(errors, content, ISS_GEAR, "magehunter", 6000, null, null, WEAPON_SPINE, EP_GAIN_STATED);
 
         // Skipped-gear archetypes (issue #4).
-        spotCheckRung(errors, content, ISS_GEAR, "spell_book", 1000, WIMPY_GATE, ISAS + "wimpy_spell_book",
-                List.of(), null);
         spotCheckRung(errors, content, ISS_GEAR, "frosted_helve", SCHOOL_TIER_GATE, LEGENDARY_GATE,
                 ISAS + "ice_staff", List.of(), null);
-        spotCheckRung(errors, content, ISS_GEAR, "truthseeker", 15000, MITHRIL_WEAPON_GATE, "tensura:mithril_sword",
-                List.of(18000, 52000), null);
+        spotCheckRung(errors, content, ISS_GEAR, "staff_of_the_nines", 15000, MITHRIL_WEAPON_GATE,
+                "tensura:mithril_sword", List.of(18000, 52000), null);
 
         // Addon archetypes (issue #3).
         spotCheckRung(errors, content, WIND_GEAR, "aeromancer_helmet", 5000, MITHRIL_ARMOR_GATE,
