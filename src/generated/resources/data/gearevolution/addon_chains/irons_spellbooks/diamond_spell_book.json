@@ -1,9 +1,9 @@
 {
   "epGain": 0.03,
   "evolutionOptions": [
-    "ice_spell_book",
-    "druidic_spell_book",
-    "netherite_spell_book",
+    "irons_spellbooks:ice_spell_book",
+    "irons_spellbooks:druidic_spell_book",
+    "irons_spellbooks:netherite_spell_book",
     "wind_spellbooks:wind_spell_book"
   ],
   "item": "irons_spellbooks:diamond_spell_book",

@@ -1,8 +1,8 @@
 {
   "epGain": 0.03,
   "evolutionOptions": [
-    "iron_spell_book",
-    "blaze_spell_book"
+    "irons_spellbooks:iron_spell_book",
+    "irons_spellbooks:blaze_spell_book"
   ],
   "item": "irons_spellbooks:rotten_spell_book",
   "maxEP": 6000,

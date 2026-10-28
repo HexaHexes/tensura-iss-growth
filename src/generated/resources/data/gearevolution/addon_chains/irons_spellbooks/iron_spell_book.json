@@ -1,8 +1,8 @@
 {
   "epGain": 0.03,
   "evolutionOptions": [
-    "villager_spell_book",
-    "gold_spell_book"
+    "irons_spellbooks:villager_spell_book",
+    "irons_spellbooks:gold_spell_book"
   ],
   "item": "irons_spellbooks:iron_spell_book",
   "maxEP": 7000,

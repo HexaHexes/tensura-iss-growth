@@ -1,8 +1,8 @@
 {
   "epGain": 0.03,
   "evolutionOptions": [
-    "copper_spell_book",
-    "rotten_spell_book"
+    "irons_spellbooks:copper_spell_book",
+    "irons_spellbooks:rotten_spell_book"
   ],
   "item": "irons_spellbooks:wimpy_spell_book",
   "maxEP": 5000,
