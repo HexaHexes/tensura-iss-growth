@@ -1,0 +1,28 @@
+{
+  "type": "irons_spellbooks:legionnaire_flamberge",
+  "evolution": "tensura:mithril_sword",
+  "maxEP": 225000,
+  "minEP": 15000,
+  "uniqueEvolutions": [
+    {
+      "EP": 18000,
+      "attributes": [
+        {
+          "type": "minecraft:generic.attack_damage",
+          "amount": 7.0,
+          "slot": "mainhand"
+        }
+      ]
+    },
+    {
+      "EP": 52000,
+      "attributes": [
+        {
+          "type": "minecraft:generic.attack_damage",
+          "amount": 13.0,
+          "slot": "mainhand"
+        }
+      ]
+    }
+  ]
+}

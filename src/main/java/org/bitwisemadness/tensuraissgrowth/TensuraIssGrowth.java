@@ -3,6 +3,9 @@ package org.bitwisemadness.tensuraissgrowth;
 import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+import org.bitwisemadness.tensuraissgrowth.datagen.JsonFilesProvider;
+import org.bitwisemadness.tensuraissgrowth.datagen.RebalanceContent;
 import org.slf4j.Logger;
 
 /**
@@ -19,6 +22,20 @@ public final class TensuraIssGrowth {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public TensuraIssGrowth(IEventBus modBus) {
+        modBus.addListener(TensuraIssGrowth::gatherData);
         LOGGER.info("Tensura - Iron's Spells Growth initialized");
+    }
+
+    /** Feeds the rebalanced datapack ({@link RebalanceContent}) into datagen. */
+    private static void gatherData(GatherDataEvent event) {
+        if (!event.includeServer()) {
+            return;
+        }
+        RebalanceContent.Content content = RebalanceContent.build();
+        var output = event.getGenerator().getPackOutput();
+        event.addProvider(new JsonFilesProvider("gear_existence", output, content.geGearExistence()));
+        event.addProvider(new JsonFilesProvider("addon_gear_existence", output, content.issGearExistence()));
+        event.addProvider(new JsonFilesProvider("tensura_gear_existence", output, content.tensuraGearExistence()));
+        event.addProvider(new JsonFilesProvider("addon_chains", output, content.addonChains()));
     }
 }

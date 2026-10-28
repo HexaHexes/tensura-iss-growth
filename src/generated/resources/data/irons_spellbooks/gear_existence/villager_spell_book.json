@@ -1,0 +1,6 @@
+{
+  "type": "irons_spellbooks:villager_spell_book",
+  "evolution": "irons_spellbooks:diamond_spell_book",
+  "maxEP": 8000,
+  "minEP": 7000
+}

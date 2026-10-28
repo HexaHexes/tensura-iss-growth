@@ -31,6 +31,86 @@ versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
 
-# Add your mod's dependencies below. Use type = "optional" for anything the mod
-# works without, and gate the code that touches it (mixins, registrations) so it
-# no-ops when the dependency is absent.
+# Tensura - required (D5). Source of the EP/existence systems the ladders feed.
+[[dependencies.${mod_id}]]
+modId = "tensura"
+type = "required"
+versionRange = "[1.9.3,2.1)"
+ordering = "AFTER"
+side = "BOTH"
+
+# ManasCore - required (D5). Tensura's library; hosts the attribute and skill APIs.
+[[dependencies.${mod_id}]]
+modId = "manascore"
+type = "required"
+versionRange = "[3.0.2.9,5)"
+ordering = "AFTER"
+side = "BOTH"
+
+# Iron's Spells 'n Spellbooks - required (D5). The gear and spells this addon
+# re-weaves; every re-banded file targets its items.
+[[dependencies.${mod_id}]]
+modId = "irons_spellbooks"
+type = "required"
+versionRange = "[1.21.1-3.16.3,)"
+ordering = "AFTER"
+side = "BOTH"
+
+# Tensura Compat: Iron's Spells - required (D5). Registers the flat
+# gear_existence bands this addon overrides at the same resource paths.
+[[dependencies.${mod_id}]]
+modId = "tensura_iron_spells"
+type = "required"
+versionRange = "[2,)"
+ordering = "AFTER"
+side = "BOTH"
+
+# Architectury - required by tensura_iron_spells; declared so this addon loads
+# after it (same pattern as tensura-iaf-growth).
+[[dependencies.${mod_id}]]
+modId = "architectury"
+type = "optional"
+versionRange = "[13.0.8,)"
+ordering = "AFTER"
+side = "BOTH"
+
+# Gear Evolution - optional (D5). Reads the addon_chains data this addon
+# generates; the chains are inert without it, and the gear_existence overrides
+# still apply through Tensura alone.
+[[dependencies.${mod_id}]]
+modId = "gearevolution"
+type = "optional"
+versionRange = "[1,)"
+ordering = "AFTER"
+side = "BOTH"
+
+# The four optional Iron's Spells addons (D5, coverage in #3). Their band files
+# ship in the datapack regardless - a datapack file referencing a missing item
+# is inert until its mod is installed.
+[[dependencies.${mod_id}]]
+modId = "allthewizardgear"
+type = "optional"
+versionRange = "[1,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "wind_spellbooks"
+type = "optional"
+versionRange = "[1,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "leylines"
+type = "optional"
+versionRange = "[1,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "resonant_arcana"
+type = "optional"
+versionRange = "[0.3,)"
+ordering = "AFTER"
+side = "BOTH"

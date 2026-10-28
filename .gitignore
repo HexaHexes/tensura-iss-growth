@@ -5,3 +5,4 @@ run/
 *.iml
 .idea/
 repo/
+**/src/generated/**/.cache/
