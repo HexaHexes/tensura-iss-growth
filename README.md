@@ -24,8 +24,9 @@ full plan, research tables and open design decisions.)*
 - **Mage armor sets and spell weapons weave upward** toward the Tensura metal
   spine at the same gates Tensura gear of that tier climbs.
 - **Covers gear the official integration misses** - frosted helve, truthseeker,
-  staff of the nines, claymore, improved blood staff, cinderous soulcaller,
-  illusioner spell book, and the base spell book.
+  staff of the nines, claymore, cinderous soulcaller and the base spell book
+  (the plan's "improved blood staff" and "illusioner spell book" do not exist
+  in Iron's Spells 3.16.3).
 - **Optional addon integrations**, inert when the addon is absent: AllTheWizard
   Gear (allthemodium/vibranium/unobtainium mage gear), Wind Spellbooks (wind
   school, aeromancer set, wind staff), Leylines (ley staff, leyline codex),
@@ -91,6 +92,12 @@ gate:
 |---|---|---|---|---|
 | `tensura:mithril_sword` | 225,000 | 500,000 | `tensura:adamantite_sword` | 0.025 |
 | `tensura:mithril_helmet`/`chestplate`/`leggings`/`boots` | 750,000 | 1,000,000 | `tensura:adamantite_<slot>` | 0.03 |
+
+| Rungs | Floor | Gate | Becomes | Milestones kept |
+|---|---|---|---|---|
+| `irons_spellbooks:spell_book` (the base book) | 1,000 | 2,000 | `wimpy_spell_book` | none (gate below the spine) |
+| `irons_spellbooks:frosted_helve` | 10,000 | 15,000 | `ice_staff` | none (gate below the spine) |
+| `irons_spellbooks:truthseeker`, `staff_of_the_nines`, `claymore`, `cinderous_soulcaller` | 15,000 | 225,000 | `tensura:mithril_sword` | 18k, 52k |
 
 ### Optional addon integrations (27 files)
 
