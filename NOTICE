@@ -1,4 +1,4 @@
-<project name>
+Tensura - Iron's Spells Growth
 Copyright (c) 2026 Bitwise Madness
 
 This mod is licensed under the GNU Lesser General Public License v2.1 - see
@@ -11,3 +11,9 @@ without a right to do so.
 - Minecraft is a trademark of Mojang AB. This mod is not affiliated with or
   endorsed by Mojang.
 - NeoForge: https://neoforged.net/
+- Iron's Spells 'n Spellbooks (irons_spellbooks): https://www.curseforge.com/minecraft/mc-mods/irons-spellbooks
+- Tensura: Reincarnated (tensura, manascore): https://www.curseforge.com/minecraft/mc-mods/tensura-reincarnated
+- Tensura: Iron's Spells integration (tensura_iron_spells)
+- Gear Evolution (gearevolution)
+- AllTheWizardGear, Wind Spellbooks, Leylines, Resonant Arcana - optional
+  integrations, attributed per their own licenses.

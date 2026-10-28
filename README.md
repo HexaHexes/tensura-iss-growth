@@ -1,86 +1,64 @@
-# Example Mod
+# Tensura - Iron's Spells Growth
 
-A short, player-facing pitch goes here — one or two sentences on what the mod adds
-or changes, written for someone deciding whether to install it.
+A NeoForge mod for the **Tensura RPG** pack (MC 1.21.1) that gives Iron's Spells
+'n Spellbooks gear a full evolution progression along Tensura's own EP ladder,
+the way this org's Ice and Fire mod does for Ice and Fire equipment. The
+official integration (`tensura_iron_spells`) ships every spell book, mage armor
+set and spell weapon as a **flat terminal EP band** - gear that earns but never
+climbs. This mod re-weaves those bands into chains: armor sets, spell books and
+weapons each forge upward, fork at gates, and hand off into Tensura metals, so a
+wizard's kit grows with their power instead of stalling at its spawn floor.
 
 ## What it does
 
-- Describe the first mechanic in plain terms.
-- Describe the second mechanic in plain terms.
+*(Design phase - no release yet. The open issues on this repository hold the
+full plan, research tables and open design decisions.)*
+
+- **Re-weaves the official integration's bands.** Same-path overrides of the
+  `tensura_iron_spells` gear files plus Gear Evolution addon chains, following
+  the house doctrines: native floors and EP rates preserved, no tier skips,
+  fork points inert with chains, terminals keep earning.
+- **Spell books climb their tier ladder** - wimpy, copper, iron, gold, diamond,
+  netherite, legendary and the school books (ice, blaze, druidic, evoker,
+  necronomicon, cursed doll, dragonskin) each progress rather than sit terminal.
+- **Mage armor sets and spell weapons weave upward** toward the Tensura metal
+  spine at the same gates Tensura gear of that tier climbs.
+- **Covers gear the official integration misses** - frosted helve, truthseeker,
+  staff of the nines, claymore, improved blood staff, cinderous soulcaller,
+  illusioner spell book, and the base spell book.
+- **Optional addon integrations**, inert when the addon is absent: AllTheWizard
+  Gear (allthemodium/vibranium/unobtainium mage gear), Wind Spellbooks (wind
+  school, aeromancer set, wind staff), Leylines (ley staff, leyline codex),
+  Resonant Arcana (deathchill/phoenix/runic echoes spell books).
+- **Entity existence bands** where the official integration leaves gaps (for
+  example Wind Spellbooks' aeromancer mob).
 
 ## Getting it in-game
 
-Explain how the player encounters the content — commands, crafting, world gen,
-or "install and play". Include any config or operator-level commands.
+Not yet available - no release has been cut. When the first alpha ships: drop
+the jar in `mods/` alongside Tensura: Reincarnated and Iron's Spells, and the
+rebalanced datapack inside the jar applies itself on world load.
 
 ## Dependencies
 
 | | Mod | Why |
 |---|---|---|
-| Required | Minecraft | — |
-| Required | NeoForge | — |
-| Optional | Example Library | What breaks or is missing without it |
-
-## Using this template
-
-This repository is a **template** for new NeoForge mods in this org. To start a
-mod from it: create a new repository from this template (or copy the folder),
-then work through the **rename checklist** below. Every step is mechanical.
-
-### Rename checklist
-
-The mod's identity is deliberately concentrated so a rename touches a handful of
-known places. Search the repo for each of these before you start.
-
-1. **`gradle.properties`** — set `mod_id`, `mod_name`, `mod_version`,
-   `mod_group_id`, `mod_authors`, `mod_description`. This is the single source
-   of truth: `build.gradle` reads these, and the `neoforge.mods.toml`
-   placeholders are filled from them at build time.
-2. **`settings.gradle`** — set `rootProject.name` to the same value as `mod_id`.
-3. **`build.gradle`** — `archivesName` already reads `mod_id`; leave it unless
-   you want a jar name that differs from the mod id.
-4. **Java package** — move `src/main/java/org/bitwisemadness/examplemod/` and
-   `src/gametest/java/org/bitwisemadness/examplemod/` to your new
-   `mod_group_id` path, and update the `package` declarations.
-5. **`ExampleMod.MOD_ID`** — set the constant to the new `mod_id`. It is the
-   value `@Mod` is annotated with, and it must match `mod_id` exactly.
-6. **Mixins config** — rename `src/main/resources/examplemod.mixins.json` to
-   `<mod_id>.mixins.json`, and set its `package` to your mixin package. The
-   `[[mixins]]` entry in `src/main/templates/META-INF/neoforge.mods.toml`
-   already references it by `${mod_id}.mixins.json`.
-7. **GameTest template structure** — if you keep the smoke test, the structure
-   lives at `src/gametest/resources/data/<mod_id>/structure/empty.nbt`; move it
-   under your new mod id. The smoke test's `@GameTest(template = "empty")`
-   resolves it.
-8. **`agents/REPO.md`** — fill in the repo header (repo, mod id, jar name), the
-   description, the dependencies, the test line and the gotchas. Do not edit
-   `agents/AGENTS.md`: it is pulled verbatim from the template repo and only
-   changes there.
-9. **Publishing block in `build.gradle`** — set the GitHub Packages URL in the
-   `publishing` block to this repository
-   (`https://maven.pkg.github.com/HexaHexes/<repo-name>`); the artifactId and the
-   pom metadata already read from `gradle.properties`.
-10. **`NOTICE`** — replace `<project name>` with the mod name and add attribution
-    for anything the mod reads through public APIs or includes. The file is
-    mandatory and must never be deleted.
-
-Search for leftovers before your first build:
-
-```
-examplemod
-Example Mod
-org.bitwisemadness.examplemod
-```
-
-All three should return nothing once the rename is complete.
+| Required | Minecraft / NeoForge | 1.21.1 / 21.1.259 |
+| Required | Tensura: Reincarnated (+ ManasCore) | The EP ladder and gear_existence registry this mod writes into |
+| Required | Iron's Spells 'n Spellbooks | The gear being re-woven |
+| Required | Tensura: Iron's Spells (official integration) | Its flat bands are what this mod overrides |
+| Optional | Gear Evolution | Evolution chains only resolve with GE installed; without it the band overrides still apply |
+| Optional | AllTheWizardGear, Wind Spellbooks, Leylines, Resonant Arcana | Their gear gets bands only from this mod; files are inert when the addon is absent |
 
 ## Credits
 
 - Built on [NeoForge](https://neoforged.net/).
+- Integrates [Iron's Spells 'n Spellbooks](https://www.curseforge.com/minecraft/mc-mods/irons-spellbooks)
+  and [Tensura: Reincarnated](https://www.curseforge.com/minecraft/mc-mods/tensura-reincarnated).
 
 ## License
 
-GNU Lesser General Public License v2.1 — see [`LICENSE`](LICENSE).
+GNU Lesser General Public License v2.1 - see [`LICENSE`](LICENSE).
 Copyright (c) 2026 Bitwise Madness.
 
 ## AI disclosure
