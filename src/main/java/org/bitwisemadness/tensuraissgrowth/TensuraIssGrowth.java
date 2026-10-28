@@ -38,5 +38,6 @@ public final class TensuraIssGrowth {
         event.addProvider(new JsonFilesProvider("tensura_gear_existence", output, content.tensuraGearExistence()));
         event.addProvider(new JsonFilesProvider("optional_addon_gear_existence", output, content.addonGearExistence()));
         event.addProvider(new JsonFilesProvider("addon_chains", output, content.addonChains()));
+        event.addProvider(new JsonFilesProvider("entity_existence", output, content.entityExistence()));
     }
 }
