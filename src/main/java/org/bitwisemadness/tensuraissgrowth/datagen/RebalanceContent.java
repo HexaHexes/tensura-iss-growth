@@ -217,7 +217,8 @@ public final class RebalanceContent {
             Map<String, JsonObject> issGearExistence,
             Map<String, JsonObject> tensuraGearExistence,
             Map<String, JsonObject> addonGearExistence,
-            Map<String, JsonObject> addonChains) {
+            Map<String, JsonObject> addonChains,
+            Map<String, JsonObject> entityExistence) {
     }
 
     public static Content build() {
@@ -226,6 +227,7 @@ public final class RebalanceContent {
         Map<String, JsonObject> tensuraGear = new LinkedHashMap<>();
         Map<String, JsonObject> addonGear = new LinkedHashMap<>();
         Map<String, JsonObject> chains = new LinkedHashMap<>();
+        Map<String, JsonObject> entities = new LinkedHashMap<>();
 
         addSpellBooks(issGear, chains);
         addWeapons(issGear);
@@ -234,8 +236,9 @@ public final class RebalanceContent {
         addSkippedGear(issGear);
         addMithrilRunners(tensuraGear);
         addAddonGear(addonGear, chains);
+        addEntityBands(entities);
 
-        Content content = new Content(geGear, issGear, tensuraGear, addonGear, chains);
+        Content content = new Content(geGear, issGear, tensuraGear, addonGear, chains, entities);
         validate(content);
         return content;
     }
@@ -461,6 +464,37 @@ public final class RebalanceContent {
         return "data/" + fullId.substring(0, colon) + "/gear_existence/" + fullId.substring(colon + 1) + ".json";
     }
 
+    // --- Entity existence bands (issue #5) --------------------------------------
+
+    /**
+     * The one mob band this mod adds (D2 in #1): Wind Spellbooks' aeromancer,
+     * banded at the official integration's wizard-mage tier (the cryomancer /
+     * priest / pyromancer bands: aura 2,000-4,000, magicule 8,000-12,000,
+     * spiritualHealth 400) with the one wind ability Tensura provides.
+     * Leylines' nightborn_elf is worldgen/faction content, not a combat mob -
+     * deliberately unbanded; the official 18 ISAS bands are left alone (D2).
+     */
+    private static void addEntityBands(Map<String, JsonObject> entities) {
+        put(entities, "data/wind_spellbooks/entity_existence/aeromancer.json",
+                entityBand("wind_spellbooks:aeromancer", 2000, 4000, 8000, 12000, 400,
+                        List.of("tensura:wind_gust")));
+    }
+
+    private static JsonObject entityBand(String type, int minAura, int maxAura, int minMagicule, int maxMagicule,
+            int spiritualHealth, List<String> abilities) {
+        JsonObject json = new JsonObject();
+        json.addProperty("type", type);
+        JsonArray array = new JsonArray();
+        abilities.forEach(array::add);
+        json.add("abilities", array);
+        json.addProperty("min_aura", minAura);
+        json.addProperty("max_aura", maxAura);
+        json.addProperty("min_magicule", minMagicule);
+        json.addProperty("max_magicule", maxMagicule);
+        json.addProperty("spiritualHealth", spiritualHealth);
+        return json;
+    }
+
     // --- Milestone builders -------------------------------------------------------
 
     /** Weapon-spine bumps an item between {@code floor} and {@code gate} can actually fire. */
@@ -604,9 +638,35 @@ public final class RebalanceContent {
         expect(errors, "tensura receiving rungs", 5, content.tensuraGearExistence().size());
         expect(errors, "gear_existence files under the GE namespace (no ISS builtins to neutralise)", 0,
                 content.geGearExistence().size());
-        expect(errors, "total files", 134, content.geGearExistence().size() + content.issGearExistence().size()
+        expect(errors, "total files", 135, content.geGearExistence().size() + content.issGearExistence().size()
                 + content.tensuraGearExistence().size() + content.addonGearExistence().size()
-                + content.addonChains().size());
+                + content.addonChains().size() + content.entityExistence().size());
+        expect(errors, "entity existence bands", 1, content.entityExistence().size());
+
+        for (Map.Entry<String, JsonObject> entry : content.entityExistence().entrySet()) {
+            String label = entry.getKey();
+            JsonObject json = entry.getValue();
+            checkFileName(errors, label);
+            String namespace = label.split("/")[1];
+            if (!json.get("type").getAsString().startsWith(namespace + ":")) {
+                errors.add(label + ": type is outside its namespace " + namespace);
+            }
+            int minAura = json.get("min_aura").getAsInt();
+            int maxAura = json.get("max_aura").getAsInt();
+            int minMagicule = json.get("min_magicule").getAsInt();
+            int maxMagicule = json.get("max_magicule").getAsInt();
+            if (minAura > maxAura || minMagicule > maxMagicule) {
+                errors.add(label + ": inverted band");
+            }
+            if (json.get("spiritualHealth").getAsInt() <= 0) {
+                errors.add(label + ": spiritualHealth must be positive");
+            }
+            for (var ability : json.getAsJsonArray("abilities")) {
+                if (!ability.getAsString().startsWith("tensura:")) {
+                    errors.add(label + ": ability " + ability.getAsString() + " is not a tensura id");
+                }
+            }
+        }
 
         checkPrefix(errors, content.issGearExistence(), ISS_GEAR, "irons_spellbooks gear_existence");
         checkPrefix(errors, content.addonChains(), CHAINS, "addon_chains");
@@ -750,6 +810,23 @@ public final class RebalanceContent {
                 ATWG_ARMOR_TIER_3_FLOOR, "allthewizardgear:unobtainium_mage_helmet", List.of(750000), null);
         spotCheckTerminal(errors, content, ATWG_GEAR, "unobtainium_mage_helmet", ATWG_ARMOR_TIER_3_FLOOR,
                 List.of(), null);
+
+        // Entity band (issue #5).
+        JsonObject aeromancer = content.entityExistence().get("data/wind_spellbooks/entity_existence/aeromancer.json");
+        if (aeromancer == null) {
+            errors.add("aeromancer entity band missing");
+        } else {
+            expectInt(errors, "aeromancer", 2000, aeromancer, "min_aura");
+            expectInt(errors, "aeromancer", 4000, aeromancer, "max_aura");
+            expectInt(errors, "aeromancer", 8000, aeromancer, "min_magicule");
+            expectInt(errors, "aeromancer", 12000, aeromancer, "max_magicule");
+            expectInt(errors, "aeromancer", 400, aeromancer, "spiritualHealth");
+            List<String> abilities = new ArrayList<>();
+            aeromancer.getAsJsonArray("abilities").forEach(ability -> abilities.add(ability.getAsString()));
+            if (!abilities.equals(List.of("tensura:wind_gust"))) {
+                errors.add("aeromancer abilities are " + abilities);
+            }
+        }
 
         // The receiving rungs must stay byte-aligned with tensura-iaf-growth.
         expectJson(errors, "mithril_sword.json", content, TENSURA_GEAR + "mithril_sword.json", """

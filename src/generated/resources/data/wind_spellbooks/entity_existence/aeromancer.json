@@ -1,0 +1,11 @@
+{
+  "type": "wind_spellbooks:aeromancer",
+  "abilities": [
+    "tensura:wind_gust"
+  ],
+  "max_aura": 4000,
+  "max_magicule": 12000,
+  "min_aura": 2000,
+  "min_magicule": 8000,
+  "spiritualHealth": 400
+}

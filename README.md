@@ -124,6 +124,17 @@ Without an addon installed, GE's resolver drops its absent targets: the
 netherite fork rolls among the five ISAS books, the diamond fork among the
 three ISAS school books, and the addon bands simply never match an item.
 
+### Entity existence (1 file)
+
+| Mob | Aura | Magicule | Spiritual health | Abilities |
+|---|---|---|---|---|
+| `wind_spellbooks:aeromancer` | 2,000 – 4,000 | 8,000 – 12,000 | 400 | `tensura:wind_gust` |
+
+Banded at the official integration's wizard-mage tier (the cryomancer /
+priest / pyromancer bands). Leylines' nightborn_elf is worldgen/faction
+content, not a combat mob, and is deliberately unbanded; the official 18
+ISAS bands are untouched (D2 in #1).
+
 ## Getting it in-game
 
 Not yet available - no release has been cut. When the first alpha ships: drop
