@@ -92,6 +92,31 @@ gate:
 | `tensura:mithril_sword` | 225,000 | 500,000 | `tensura:adamantite_sword` | 0.025 |
 | `tensura:mithril_helmet`/`chestplate`/`leggings`/`boots` | 750,000 | 1,000,000 | `tensura:adamantite_<slot>` | 0.03 |
 
+### Optional addon integrations (27 files)
+
+Bands for the four ISAS addons — the files ship unconditionally and are inert
+when the addon is absent (item-id lookup simply misses). Placement per D4 in
+#1; epGain omitted everywhere it has no native source, i.e. the codec default
+0.03 applies, except the aeromancer set which joins the school weave at the
+stated 0.02.
+
+| Rungs | Floor | Gate | Becomes | Milestones kept |
+|---|---|---|---|---|
+| `wind_spellbooks:aeromancer_helmet`/`chestplate`/`leggings`/`boots` | 5,000 | 750,000 | `tensura:mithril_<slot>` | 18k, 52k, 225k |
+| `wind_spellbooks:wind_spell_book` (fork, joins the school ladder at diamond's fork too) | 10,000 | 15,000 (chain) | the five legendary books | none (chain-driven) |
+| `wind_spellbooks:wind_staff`, `leylines:ley_staff` | 15,000 | 225,000 | `tensura:mithril_sword` | 18k, 52k |
+| `leylines:leyline_codex`, `resonant_arcana:deathchill_spell_book`/`phoenix_spell_book`/`runic_echoes_spell_book` | 15,000 | terminal | — | full weapon spine |
+| `allthewizardgear:allthemodium_spell_book` (entered via netherite's fork, D3) | 15,000 | 52,000 | `allthewizardgear:vibranium_spell_book` | 18k |
+| `allthewizardgear:vibranium_spell_book` | 52,000 | 225,000 | `allthewizardgear:unobtainium_spell_book` | 52k |
+| `allthewizardgear:unobtainium_spell_book` | 225,000 | terminal | — | 225k, 750k |
+| `allthewizardgear:allthemodium_mage_<slot>` (standalone smithing-entry bands) | 225,000 | 500,000 | `allthewizardgear:vibranium_mage_<slot>` | 225k |
+| `allthewizardgear:vibranium_mage_<slot>` | 500,000 | 1,000,000 | `allthewizardgear:unobtainium_mage_<slot>` | 750k |
+| `allthewizardgear:unobtainium_mage_<slot>` | 1,000,000 | terminal | — | — |
+
+Without an addon installed, GE's resolver drops its absent targets: the
+netherite fork rolls among the five ISAS books, the diamond fork among the
+three ISAS school books, and the addon bands simply never match an item.
+
 ## Getting it in-game
 
 Not yet available - no release has been cut. When the first alpha ships: drop

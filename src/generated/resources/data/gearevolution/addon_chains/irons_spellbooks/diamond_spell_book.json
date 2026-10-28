@@ -3,7 +3,8 @@
   "evolutionOptions": [
     "ice_spell_book",
     "druidic_spell_book",
-    "netherite_spell_book"
+    "netherite_spell_book",
+    "wind_spellbooks:wind_spell_book"
   ],
   "item": "irons_spellbooks:diamond_spell_book",
   "maxEP": 10000,

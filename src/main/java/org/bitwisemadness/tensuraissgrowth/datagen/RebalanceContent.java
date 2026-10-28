@@ -132,7 +132,9 @@ public final class RebalanceContent {
     private static final List<String> WIMPY_FORK = List.of("copper_spell_book", "rotten_spell_book");
     private static final List<String> COMMON_FORK = List.of("iron_spell_book", "blaze_spell_book");
     private static final List<String> UNCOMMON_FORK = List.of("villager_spell_book", "gold_spell_book");
-    private static final List<String> SCHOOL_FORK = List.of("ice_spell_book", "druidic_spell_book", "netherite_spell_book");
+    /** diamond's fork: the three ISAS school books plus wind_spell_book (joins per D4). */
+    private static final List<String> SCHOOL_FORK = List.of("ice_spell_book", "druidic_spell_book",
+            "netherite_spell_book", "wind_spellbooks:wind_spell_book");
     private static final List<String> LEGENDARY_FORK = List.of("evoker_spell_book", "cursed_doll_spell_book",
             "necronomicon_spell_book", "dragonskin_spell_book", "legendary_spell_book");
 
@@ -151,11 +153,59 @@ public final class RebalanceContent {
             "keeper_flamberge", "legionnaire_flamberge", "lightning_rod", "misery", "pyrium_staff",
             "spellbreaker", "twilight_gale");
 
+    // --- Optional addon gear (issue #3, placement per D4 in #1) ---------------
+
+    /** Per-namespace roots; each addon namespace is owned by this mod (REPO.md). */
+    private static final String WIND_GEAR = "data/wind_spellbooks/gear_existence/";
+    private static final String LEY_GEAR = "data/leylines/gear_existence/";
+    private static final String RESONANT_GEAR = "data/resonant_arcana/gear_existence/";
+    private static final String ATWG_GEAR = "data/allthewizardgear/gear_existence/";
+
+    /** Aeromancer pieces join the 5,000 school-armor weave. */
+    private static final List<String> AEROMANCER_PIECES = List.of(
+            "aeromancer_helmet", "aeromancer_chestplate", "aeromancer_leggings", "aeromancer_boots");
+
+    /** wind_spell_book joins the school-book ladder at the 10,000 tier. */
+    private static final String WIND_BOOK = "wind_spellbooks:wind_spell_book";
+
+    /** The two staves join the 15,000 weapons and hand off to mithril_sword. */
+    private static final List<String> ADDON_STAVES = List.of("wind_spellbooks:wind_staff", "leylines:ley_staff");
+
+    /** Rare books joining the legendary books as 15,000 terminals. */
+    private static final List<String> RARE_BOOKS = List.of(
+            "leylines:leyline_codex", "resonant_arcana:deathchill_spell_book",
+            "resonant_arcana:phoenix_spell_book", "resonant_arcana:runic_echoes_spell_book");
+
+    /**
+     * The AllTheWizardGear book ladder (D3): netherite_spell_book smiths into
+     * allthemodium_spell_book (recipe base verified in the ATWG jar), which
+     * climbs allthemodium -&gt; vibranium -&gt; unobtainium on the spine.
+     */
+    private static final List<String> ATWG_BOOK_TIERS = List.of("allthemodium", "vibranium", "unobtainium");
+    private static final int ATWG_BOOK_TIER_2_GATE = 52000;
+    private static final int ATWG_BOOK_TIER_3_GATE = 225000;
+
+    /**
+     * The AllTheWizardGear mage armor climbs its own smithing ladder as
+     * standalone bands: the recipes base on the generic base_wizard_* tag
+     * rather than any one school set, so no ISAS piece forks into them and
+     * every school keeps its milestone spine intact.
+     */
+    private static final int ATWG_ARMOR_TIER_1_FLOOR = 225000;
+    private static final int ATWG_ARMOR_TIER_2_GATE = 500000;
+    private static final int ATWG_ARMOR_TIER_3_FLOOR = 1000000;
+
+    /** netherite_spell_book's fork: the five legendary books plus the ATWG ladder's first rung. */
+    private static final List<String> NETHERITE_FORK = List.of("evoker_spell_book", "cursed_doll_spell_book",
+            "necronomicon_spell_book", "dragonskin_spell_book", "legendary_spell_book",
+            "allthewizardgear:allthemodium_spell_book");
+
     /** Every file the pack ships, grouped by the ladder it belongs to. */
     public record Content(
             Map<String, JsonObject> geGearExistence,
             Map<String, JsonObject> issGearExistence,
             Map<String, JsonObject> tensuraGearExistence,
+            Map<String, JsonObject> addonGearExistence,
             Map<String, JsonObject> addonChains) {
     }
 
@@ -163,6 +213,7 @@ public final class RebalanceContent {
         Map<String, JsonObject> geGear = new LinkedHashMap<>();
         Map<String, JsonObject> issGear = new LinkedHashMap<>();
         Map<String, JsonObject> tensuraGear = new LinkedHashMap<>();
+        Map<String, JsonObject> addonGear = new LinkedHashMap<>();
         Map<String, JsonObject> chains = new LinkedHashMap<>();
 
         addSpellBooks(issGear, chains);
@@ -170,8 +221,9 @@ public final class RebalanceContent {
         addArmor(issGear);
         addSpecials(issGear);
         addMithrilRunners(tensuraGear);
+        addAddonGear(addonGear, chains);
 
-        Content content = new Content(geGear, issGear, tensuraGear, chains);
+        Content content = new Content(geGear, issGear, tensuraGear, addonGear, chains);
         validate(content);
         return content;
     }
@@ -186,9 +238,9 @@ public final class RebalanceContent {
         forkBook(issGear, chains, "iron_spell_book", 6000, UNCOMMON_TIER_GATE, UNCOMMON_FORK);
         forkBook(issGear, chains, "blaze_spell_book", 6000, UNCOMMON_TIER_GATE, UNCOMMON_FORK);
         forkBook(issGear, chains, "diamond_spell_book", 8000, SCHOOL_TIER_GATE, SCHOOL_FORK);
-        for (String book : List.of("ice_spell_book", "druidic_spell_book", "netherite_spell_book")) {
-            forkBook(issGear, chains, book, 10000, LEGENDARY_GATE, LEGENDARY_FORK);
-        }
+        forkBook(issGear, chains, "ice_spell_book", 10000, LEGENDARY_GATE, LEGENDARY_FORK);
+        forkBook(issGear, chains, "druidic_spell_book", 10000, LEGENDARY_GATE, LEGENDARY_FORK);
+        forkBook(issGear, chains, "netherite_spell_book", 10000, LEGENDARY_GATE, NETHERITE_FORK);
 
         // The 7,000 books step to diamond by plain rung: no chain entry, so no
         // milestone strip - but the gate (8,000) sits below the first spine EP,
@@ -297,6 +349,82 @@ public final class RebalanceContent {
                     mithril("tensura:mithril_" + slot, MITHRIL_ARMOR_GATE, 1000000, EP_GAIN_DEFAULT,
                             "tensura:adamantite_" + slot));
         }
+    }
+
+    // --- Optional addon gear (issue #3) ----------------------------------------
+
+    /**
+     * Gear of the four optional ISAS addons (D4 placement in #1). The files
+     * ship unconditionally: {@code gear_existence.type} is a plain
+     * ResourceLocation, so files referencing an absent addon's items parse
+     * fine and never match at runtime.
+     */
+    private static void addAddonGear(Map<String, JsonObject> addonGear, Map<String, JsonObject> chains) {
+        // Wind Spellbooks: the aeromancer set joins the 5,000 school-armor
+        // weave - same floor, rate, milestones and mithril hand-off.
+        for (String piece : AEROMANCER_PIECES) {
+            String slot = piece.substring("aeromancer_".length());
+            put(addonGear, WIND_GEAR + piece + ".json",
+                    gear("wind_spellbooks:" + piece, 5000, MITHRIL_ARMOR_GATE, EP_GAIN_STATED,
+                            armorSpine(5000, MITHRIL_ARMOR_GATE), null, "tensura:mithril_" + slot));
+        }
+
+        // wind_spell_book joins the school-book ladder at the 10,000 tier:
+        // inert companion plus the same fork to the five legendary books.
+        put(addonGear, WIND_GEAR + "wind_spell_book.json", gear(WIND_BOOK, 10000, 0, 0.0d, null, null, null));
+        put(chains, CHAINS + "wind_spell_book.json", chainOptions(WIND_BOOK, 10000, LEGENDARY_GATE, LEGENDARY_FORK));
+
+        // The two staves join the 15,000 weapons and hand off to mithril.
+        for (String staff : ADDON_STAVES) {
+            put(addonGear, gearPathFor(staff),
+                    gear(staff, 15000, MITHRIL_WEAPON_GATE, null, weaponSpine(15000, MITHRIL_WEAPON_GATE), null,
+                            "tensura:mithril_sword"));
+        }
+
+        // The rare books join the legendary books as 15,000 terminals on the
+        // full weapon spine.
+        for (String book : RARE_BOOKS) {
+            put(addonGear, gearPathFor(book), gear(book, 15000, null, null, weaponSpine(15000, null), null, null));
+        }
+
+        // AllTheWizardGear book ladder (D3): netherite_spell_book forks into
+        // the first rung; the ladder climbs on the spine at the native-default
+        // rate and terminates at unobtainium.
+        int[] bookFloors = {LEGENDARY_GATE, ATWG_BOOK_TIER_2_GATE, ATWG_BOOK_TIER_3_GATE};
+        int[] bookGates = {ATWG_BOOK_TIER_2_GATE, ATWG_BOOK_TIER_3_GATE, 0};
+        for (int i = 0; i < ATWG_BOOK_TIERS.size(); i++) {
+            String tier = ATWG_BOOK_TIERS.get(i);
+            Integer gate = bookGates[i] == 0 ? null : bookGates[i];
+            String evolution = gate == null ? null
+                    : "allthewizardgear:" + ATWG_BOOK_TIERS.get(i + 1) + "_spell_book";
+            put(addonGear, ATWG_GEAR + tier + "_spell_book.json",
+                    gear("allthewizardgear:" + tier + "_spell_book", bookFloors[i], gate, null,
+                            weaponSpine(bookFloors[i], gate), null, evolution));
+        }
+
+        // AllTheWizardGear mage armor: standalone smithing-entry bands (their
+        // recipes base on the generic base_wizard_* tag, so no one school set
+        // forks into them) climbing allthemodium -> vibranium -> unobtainium.
+        for (String slot : SCHOOL_SLOTS) {
+            put(addonGear, ATWG_GEAR + "allthemodium_mage_" + slot + ".json",
+                    gear("allthewizardgear:allthemodium_mage_" + slot, ATWG_ARMOR_TIER_1_FLOOR,
+                            ATWG_ARMOR_TIER_2_GATE, null, armorSpine(ATWG_ARMOR_TIER_1_FLOOR, ATWG_ARMOR_TIER_2_GATE),
+                            null, "allthewizardgear:vibranium_mage_" + slot));
+            put(addonGear, ATWG_GEAR + "vibranium_mage_" + slot + ".json",
+                    gear("allthewizardgear:vibranium_mage_" + slot, ATWG_ARMOR_TIER_2_GATE,
+                            ATWG_ARMOR_TIER_3_FLOOR, null,
+                            armorSpine(ATWG_ARMOR_TIER_2_GATE, ATWG_ARMOR_TIER_3_FLOOR), null,
+                            "allthewizardgear:unobtainium_mage_" + slot));
+            put(addonGear, ATWG_GEAR + "unobtainium_mage_" + slot + ".json",
+                    gear("allthewizardgear:unobtainium_mage_" + slot, ATWG_ARMOR_TIER_3_FLOOR, null, null,
+                            armorSpine(ATWG_ARMOR_TIER_3_FLOOR, null), null, null));
+        }
+    }
+
+    /** {@code data/<namespace>/gear_existence/<path>.json} for a full item id. */
+    private static String gearPathFor(String fullId) {
+        int colon = fullId.indexOf(':');
+        return "data/" + fullId.substring(0, colon) + "/gear_existence/" + fullId.substring(colon + 1) + ".json";
     }
 
     // --- Milestone builders -------------------------------------------------------
@@ -416,6 +544,15 @@ public final class RebalanceContent {
         }
     }
 
+    /** The item namespaces this mod owns: Iron's Spells plus the four optional addons. */
+    private static boolean ownedNamespace(String fullId) {
+        if (fullId.startsWith(ISAS)) {
+            return true;
+        }
+        return List.of("wind_spellbooks:", "leylines:", "resonant_arcana:", "allthewizardgear:")
+                .stream().anyMatch(fullId::startsWith);
+    }
+
     // --- Validation ---------------------------------------------------------------
 
     private static void validate(Content content) {
@@ -427,44 +564,33 @@ public final class RebalanceContent {
         expect(errors, "plain rungs with evolution", 68, count(content.issGearExistence(), json ->
                 json.has("maxEP") && json.get("maxEP").getAsInt() > 0 && json.has("evolution")));
         expect(errors, "plain terminals", 10, count(content.issGearExistence(), json -> !json.has("maxEP")));
-        expect(errors, "addon_chains files", 9, content.addonChains().size());
+        expect(errors, "addon gear files (all four optional addons)", 26, content.addonGearExistence().size());
+        expect(errors, "addon_chains files", 10, content.addonChains().size());
         expect(errors, "tensura receiving rungs", 5, content.tensuraGearExistence().size());
         expect(errors, "gear_existence files under the GE namespace (no ISS builtins to neutralise)", 0,
                 content.geGearExistence().size());
-        expect(errors, "total files", 101, content.geGearExistence().size() + content.issGearExistence().size()
-                + content.tensuraGearExistence().size() + content.addonChains().size());
+        expect(errors, "total files", 128, content.geGearExistence().size() + content.issGearExistence().size()
+                + content.tensuraGearExistence().size() + content.addonGearExistence().size()
+                + content.addonChains().size());
 
         checkPrefix(errors, content.issGearExistence(), ISS_GEAR, "irons_spellbooks gear_existence");
         checkPrefix(errors, content.addonChains(), CHAINS, "addon_chains");
         checkPrefix(errors, content.tensuraGearExistence(), TENSURA_GEAR, "tensura gear_existence");
+        for (String path : content.addonGearExistence().keySet()) {
+            boolean owned = List.of(WIND_GEAR, LEY_GEAR, RESONANT_GEAR, ATWG_GEAR).stream().anyMatch(path::startsWith);
+            if (!owned) {
+                errors.add("addon gear_existence: " + path + " is outside the four addon roots");
+            }
+        }
 
         for (Map.Entry<String, JsonObject> entry : content.issGearExistence().entrySet()) {
-            String label = entry.getKey();
-            JsonObject json = entry.getValue();
-            checkFileName(errors, label);
-            String type = json.has("type") ? json.get("type").getAsString() : "";
-            if (!type.startsWith(ISAS)) {
-                errors.add(label + ": type " + type + " is not an irons_spellbooks id");
-            }
-            int maxEP = json.has("maxEP") ? json.get("maxEP").getAsInt() : -1;
-            boolean hasEvolution = json.has("evolution");
-            if (maxEP < 0 && hasEvolution) {
-                errors.add(label + ": terminal names an evolution");
-            }
-            if (maxEP == 0) {
-                if (hasEvolution) {
-                    errors.add(label + ": inert file names an evolution");
-                }
-                if (json.has("uniqueEvolutions")) {
-                    errors.add(label + ": inert file carries milestones GE would strip");
-                }
-                if (!json.has("epGain") || json.get("epGain").getAsDouble() != 0.0d) {
-                    errors.add(label + ": inert file must state epGain 0");
-                }
-            }
-            if (json.has("uniqueEvolutions")) {
-                checkMilestones(errors, label, json, maxEP > 0 ? maxEP : null);
-            }
+            checkFileName(errors, entry.getKey());
+            checkGearEntry(errors, entry.getKey(), entry.getValue(), ISAS);
+        }
+        for (Map.Entry<String, JsonObject> entry : content.addonGearExistence().entrySet()) {
+            checkFileName(errors, entry.getKey());
+            String namespace = entry.getKey().split("/")[1];
+            checkGearEntry(errors, entry.getKey(), entry.getValue(), namespace + ":");
         }
 
         for (Map.Entry<String, JsonObject> entry : content.addonChains().entrySet()) {
@@ -472,8 +598,8 @@ public final class RebalanceContent {
             JsonObject json = entry.getValue();
             checkFileName(errors, label);
             String item = json.get("item").getAsString();
-            if (!item.startsWith(ISAS)) {
-                errors.add(label + ": item " + item + " is not an irons_spellbooks id");
+            if (!ownedNamespace(item)) {
+                errors.add(label + ": item " + item + " is outside the namespaces this mod owns");
             }
             boolean hasEvolution = json.has("evolution");
             boolean hasOptions = json.has("evolutionOptions");
@@ -491,7 +617,9 @@ public final class RebalanceContent {
                     String target = option.isJsonObject()
                             ? option.getAsJsonObject().get("id").getAsString()
                             : option.getAsString();
-                    if (!content.issGearExistence().containsKey(ISS_GEAR + target.replace(ISAS, "") + ".json")) {
+                    boolean known = content.issGearExistence().containsKey(ISS_GEAR + target.replace(ISAS, "") + ".json")
+                            || content.addonGearExistence().containsKey(gearPathFor(target));
+                    if (!known) {
                         errors.add(label + ": fork target " + target + " has no override file");
                     }
                 }
@@ -511,13 +639,15 @@ public final class RebalanceContent {
         }
 
         // Every evolution target must resolve to a file this pack ships.
-        for (Map.Entry<String, JsonObject> entry : content.issGearExistence().entrySet()) {
+        Map<String, JsonObject> allGear = new LinkedHashMap<>(content.issGearExistence());
+        allGear.putAll(content.addonGearExistence());
+        for (Map.Entry<String, JsonObject> entry : allGear.entrySet()) {
             if (!entry.getValue().has("evolution")) {
                 continue;
             }
             String target = entry.getValue().get("evolution").getAsString();
             boolean known = content.tensuraGearExistence().containsKey(TENSURA_GEAR + target.replace("tensura:", "") + ".json")
-                    || content.issGearExistence().containsKey(ISS_GEAR + target.replace(ISAS, "") + ".json");
+                    || allGear.containsKey(gearPathFor(target));
             if (!known) {
                 errors.add(entry.getKey() + ": evolution target " + target + " is not generated by this pack");
             }
@@ -534,23 +664,49 @@ public final class RebalanceContent {
             errors.add("mithril armor gate is not on the official armor spine");
         }
 
-        spotCheckInert(errors, content, "wimpy_spell_book", 2000);
+        spotCheckInert(errors, content, ISS_GEAR, "wimpy_spell_book", 2000);
         spotCheckFork(errors, content, "wimpy_spell_book", 2000, WIMPY_GATE, WIMPY_FORK);
+        spotCheckFork(errors, content, "diamond_spell_book", 8000, SCHOOL_TIER_GATE, SCHOOL_FORK);
         spotCheckFork(errors, content, "ice_spell_book", 10000, LEGENDARY_GATE, LEGENDARY_FORK);
-        spotCheckRung(errors, content, "villager_spell_book", 7000, DIAMOND_GATE, ISAS + "diamond_spell_book",
-                List.of(), null);
-        spotCheckTerminal(errors, content, "evoker_spell_book", 15000, WEAPON_SPINE, null);
-        spotCheckRung(errors, content, "amethyst_rapier", 15000, MITHRIL_WEAPON_GATE, "tensura:mithril_sword",
-                List.of(18000, 52000), null);
-        spotCheckRung(errors, content, "archevoker_helmet", 5000, MITHRIL_ARMOR_GATE, "tensura:mithril_helmet",
-                List.of(18000, 52000, 225000), EP_GAIN_STATED);
-        spotCheckRung(errors, content, "wizard_hat", 5000, MITHRIL_ARMOR_GATE, "tensura:mithril_helmet",
-                List.of(18000, 52000, 225000), EP_GAIN_STATED);
-        spotCheckTerminal(errors, content, "paladin_chestplate", 15000, ARMOR_SPINE, EP_GAIN_STATED);
-        spotCheckTerminal(errors, content, "infernal_sorcerer_chestplate", 20000,
+        spotCheckFork(errors, content, "netherite_spell_book", 10000, LEGENDARY_GATE, NETHERITE_FORK);
+        spotCheckRung(errors, content, ISS_GEAR, "villager_spell_book", 7000, DIAMOND_GATE,
+                ISAS + "diamond_spell_book", List.of(), null);
+        spotCheckTerminal(errors, content, ISS_GEAR, "evoker_spell_book", 15000, WEAPON_SPINE, null);
+        spotCheckRung(errors, content, ISS_GEAR, "amethyst_rapier", 15000, MITHRIL_WEAPON_GATE,
+                "tensura:mithril_sword", List.of(18000, 52000), null);
+        spotCheckRung(errors, content, ISS_GEAR, "archevoker_helmet", 5000, MITHRIL_ARMOR_GATE,
+                "tensura:mithril_helmet", List.of(18000, 52000, 225000), EP_GAIN_STATED);
+        spotCheckRung(errors, content, ISS_GEAR, "wizard_hat", 5000, MITHRIL_ARMOR_GATE,
+                "tensura:mithril_helmet", List.of(18000, 52000, 225000), EP_GAIN_STATED);
+        spotCheckTerminal(errors, content, ISS_GEAR, "paladin_chestplate", 15000, ARMOR_SPINE, EP_GAIN_STATED);
+        spotCheckTerminal(errors, content, ISS_GEAR, "infernal_sorcerer_chestplate", 20000,
                 List.of(52000, 225000, 750000), null);
-        spotCheckTerminal(errors, content, "tarnished_helmet", 20000, List.of(52000, 225000, 750000), null);
-        spotCheckRung(errors, content, "magehunter", 6000, null, null, WEAPON_SPINE, EP_GAIN_STATED);
+        spotCheckTerminal(errors, content, ISS_GEAR, "tarnished_helmet", 20000, List.of(52000, 225000, 750000),
+                null);
+        spotCheckRung(errors, content, ISS_GEAR, "magehunter", 6000, null, null, WEAPON_SPINE, EP_GAIN_STATED);
+
+        // Addon archetypes (issue #3).
+        spotCheckRung(errors, content, WIND_GEAR, "aeromancer_helmet", 5000, MITHRIL_ARMOR_GATE,
+                "tensura:mithril_helmet", List.of(18000, 52000, 225000), EP_GAIN_STATED);
+        spotCheckInert(errors, content, WIND_GEAR, "wind_spell_book", 10000);
+        spotCheckRung(errors, content, WIND_GEAR, "wind_staff", 15000, MITHRIL_WEAPON_GATE, "tensura:mithril_sword",
+                List.of(18000, 52000), null);
+        spotCheckRung(errors, content, LEY_GEAR, "ley_staff", 15000, MITHRIL_WEAPON_GATE, "tensura:mithril_sword",
+                List.of(18000, 52000), null);
+        spotCheckTerminal(errors, content, LEY_GEAR, "leyline_codex", 15000, WEAPON_SPINE, null);
+        spotCheckTerminal(errors, content, RESONANT_GEAR, "deathchill_spell_book", 15000, WEAPON_SPINE, null);
+        spotCheckRung(errors, content, ATWG_GEAR, "allthemodium_spell_book", 15000, ATWG_BOOK_TIER_2_GATE,
+                "allthewizardgear:vibranium_spell_book", List.of(18000), null);
+        spotCheckRung(errors, content, ATWG_GEAR, "vibranium_spell_book", ATWG_BOOK_TIER_2_GATE,
+                ATWG_BOOK_TIER_3_GATE, "allthewizardgear:unobtainium_spell_book", List.of(52000), null);
+        spotCheckTerminal(errors, content, ATWG_GEAR, "unobtainium_spell_book", ATWG_BOOK_TIER_3_GATE,
+                List.of(225000, 750000), null);
+        spotCheckRung(errors, content, ATWG_GEAR, "allthemodium_mage_helmet", ATWG_ARMOR_TIER_1_FLOOR,
+                ATWG_ARMOR_TIER_2_GATE, "allthewizardgear:vibranium_mage_helmet", List.of(225000), null);
+        spotCheckRung(errors, content, ATWG_GEAR, "vibranium_mage_helmet", ATWG_ARMOR_TIER_2_GATE,
+                ATWG_ARMOR_TIER_3_FLOOR, "allthewizardgear:unobtainium_mage_helmet", List.of(750000), null);
+        spotCheckTerminal(errors, content, ATWG_GEAR, "unobtainium_mage_helmet", ATWG_ARMOR_TIER_3_FLOOR,
+                List.of(), null);
 
         // The receiving rungs must stay byte-aligned with tensura-iaf-growth.
         expectJson(errors, "mithril_sword.json", content, TENSURA_GEAR + "mithril_sword.json", """
@@ -624,8 +780,16 @@ public final class RebalanceContent {
     }
 
     private static JsonObject file(List<String> errors, Content content, String mapPath, String path) {
-        Map<String, JsonObject> map = mapPath.startsWith(ISS_GEAR) ? content.issGearExistence()
-                : mapPath.startsWith(CHAINS) ? content.addonChains() : content.tensuraGearExistence();
+        Map<String, JsonObject> map;
+        if (mapPath.startsWith(CHAINS)) {
+            map = content.addonChains();
+        } else if (mapPath.startsWith(TENSURA_GEAR)) {
+            map = content.tensuraGearExistence();
+        } else if (mapPath.startsWith(ISS_GEAR)) {
+            map = content.issGearExistence();
+        } else {
+            map = content.addonGearExistence();
+        }
         JsonObject json = map.get(path);
         if (json == null) {
             errors.add(path + ": expected but not generated");
@@ -633,8 +797,35 @@ public final class RebalanceContent {
         return json;
     }
 
-    private static void spotCheckInert(List<String> errors, Content content, String item, int floor) {
-        JsonObject json = file(errors, content, ISS_GEAR, ISS_GEAR + item + ".json");
+    /** Shared per-file checks for a gear_existence entry (ISS overrides and addon bands alike). */
+    private static void checkGearEntry(List<String> errors, String label, JsonObject json, String namespace) {
+        String type = json.has("type") ? json.get("type").getAsString() : "";
+        if (!type.startsWith(namespace)) {
+            errors.add(label + ": type " + type + " is not a " + namespace + " id");
+        }
+        int maxEP = json.has("maxEP") ? json.get("maxEP").getAsInt() : -1;
+        boolean hasEvolution = json.has("evolution");
+        if (maxEP < 0 && hasEvolution) {
+            errors.add(label + ": terminal names an evolution");
+        }
+        if (maxEP == 0) {
+            if (hasEvolution) {
+                errors.add(label + ": inert file names an evolution");
+            }
+            if (json.has("uniqueEvolutions")) {
+                errors.add(label + ": inert file carries milestones GE would strip");
+            }
+            if (!json.has("epGain") || json.get("epGain").getAsDouble() != 0.0d) {
+                errors.add(label + ": inert file must state epGain 0");
+            }
+        }
+        if (json.has("uniqueEvolutions")) {
+            checkMilestones(errors, label, json, maxEP > 0 ? maxEP : null);
+        }
+    }
+
+    private static void spotCheckInert(List<String> errors, Content content, String root, String item, int floor) {
+        JsonObject json = file(errors, content, root, root + item + ".json");
         if (json == null) {
             return;
         }
@@ -662,9 +853,9 @@ public final class RebalanceContent {
         }
     }
 
-    private static void spotCheckRung(List<String> errors, Content content, String item, int floor, Integer gate,
-            String target, List<Integer> milestoneEps, Double epGain) {
-        JsonObject json = file(errors, content, ISS_GEAR, ISS_GEAR + item + ".json");
+    private static void spotCheckRung(List<String> errors, Content content, String root, String item, int floor,
+            Integer gate, String target, List<Integer> milestoneEps, Double epGain) {
+        JsonObject json = file(errors, content, root, root + item + ".json");
         if (json == null) {
             return;
         }
@@ -694,9 +885,9 @@ public final class RebalanceContent {
         expectMilestones(errors, item, json, milestoneEps);
     }
 
-    private static void spotCheckTerminal(List<String> errors, Content content, String item, int floor,
+    private static void spotCheckTerminal(List<String> errors, Content content, String root, String item, int floor,
             List<Integer> milestoneEps, Double epGain) {
-        spotCheckRung(errors, content, item, floor, null, null, milestoneEps, epGain);
+        spotCheckRung(errors, content, root, item, floor, null, null, milestoneEps, epGain);
     }
 
     private static void expectMilestones(List<String> errors, String item, JsonObject json, List<Integer> eps) {

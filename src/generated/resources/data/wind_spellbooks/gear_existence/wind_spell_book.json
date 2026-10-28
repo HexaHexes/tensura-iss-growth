@@ -1,0 +1,6 @@
+{
+  "type": "wind_spellbooks:wind_spell_book",
+  "epGain": 0,
+  "maxEP": 0,
+  "minEP": 10000
+}
