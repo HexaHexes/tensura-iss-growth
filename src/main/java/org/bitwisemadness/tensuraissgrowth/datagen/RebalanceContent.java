@@ -200,6 +200,17 @@ public final class RebalanceContent {
             "necronomicon_spell_book", "dragonskin_spell_book", "legendary_spell_book",
             "allthewizardgear:allthemodium_spell_book");
 
+    // --- Gear the official integration skips (issue #4) ------------------------
+
+    /**
+     * The ISAS items with no official band at all (issue #4). The plan's
+     * original list also named an "improved blood staff" and an "illusioner
+     * spell book" - neither exists in irons_spellbooks 3.16.3 (verified
+     * against the jar's item models), so the real coverage is these six.
+     */
+    private static final List<String> SKIPPED_WEAPONS = List.of(
+            "truthseeker", "staff_of_the_nines", "claymore", "cinderous_soulcaller");
+
     /** Every file the pack ships, grouped by the ladder it belongs to. */
     public record Content(
             Map<String, JsonObject> geGearExistence,
@@ -220,6 +231,7 @@ public final class RebalanceContent {
         addWeapons(issGear);
         addArmor(issGear);
         addSpecials(issGear);
+        addSkippedGear(issGear);
         addMithrilRunners(tensuraGear);
         addAddonGear(addonGear, chains);
 
@@ -348,6 +360,28 @@ public final class RebalanceContent {
             put(tensuraGear, TENSURA_GEAR + "mithril_" + slot + ".json",
                     mithril("tensura:mithril_" + slot, MITHRIL_ARMOR_GATE, 1000000, EP_GAIN_DEFAULT,
                             "tensura:adamantite_" + slot));
+        }
+    }
+
+    // --- Gear the official integration skips (issue #4) --------------------------
+
+    /**
+     * The six ISAS items with no official band. Placed by tier: the base
+     * spell book is the starter that steps into wimpy at the first gate; the
+     * frosted helve is a mid-tier weapon stepping into the ice staff at the
+     * legendary gate; the four endgame pieces join the fifteen-thousand
+     * weapons on the mithril hand-off.
+     */
+    private static void addSkippedGear(Map<String, JsonObject> issGear) {
+        put(issGear, ISS_GEAR + "spell_book.json",
+                gear(ISAS + "spell_book", 1000, WIMPY_GATE, null, null, null, ISAS + "wimpy_spell_book"));
+        put(issGear, ISS_GEAR + "frosted_helve.json",
+                gear(ISAS + "frosted_helve", SCHOOL_TIER_GATE, LEGENDARY_GATE, null,
+                        weaponSpine(SCHOOL_TIER_GATE, LEGENDARY_GATE), null, ISAS + "ice_staff"));
+        for (String weapon : SKIPPED_WEAPONS) {
+            put(issGear, ISS_GEAR + weapon + ".json",
+                    gear(ISAS + weapon, 15000, MITHRIL_WEAPON_GATE, null, weaponSpine(15000, MITHRIL_WEAPON_GATE),
+                            null, "tensura:mithril_sword"));
         }
     }
 
@@ -558,10 +592,11 @@ public final class RebalanceContent {
     private static void validate(Content content) {
         List<String> errors = new ArrayList<>();
 
-        expect(errors, "gear_existence files (every official file overridden)", 87, content.issGearExistence().size());
+        expect(errors, "gear_existence files (every official file, plus the six the official pack skips)", 93,
+                content.issGearExistence().size());
         expect(errors, "inert companions", 9, count(content.issGearExistence(), json ->
                 json.has("maxEP") && json.get("maxEP").getAsInt() == 0));
-        expect(errors, "plain rungs with evolution", 68, count(content.issGearExistence(), json ->
+        expect(errors, "plain rungs with evolution", 74, count(content.issGearExistence(), json ->
                 json.has("maxEP") && json.get("maxEP").getAsInt() > 0 && json.has("evolution")));
         expect(errors, "plain terminals", 10, count(content.issGearExistence(), json -> !json.has("maxEP")));
         expect(errors, "addon gear files (all four optional addons)", 26, content.addonGearExistence().size());
@@ -569,7 +604,7 @@ public final class RebalanceContent {
         expect(errors, "tensura receiving rungs", 5, content.tensuraGearExistence().size());
         expect(errors, "gear_existence files under the GE namespace (no ISS builtins to neutralise)", 0,
                 content.geGearExistence().size());
-        expect(errors, "total files", 128, content.geGearExistence().size() + content.issGearExistence().size()
+        expect(errors, "total files", 134, content.geGearExistence().size() + content.issGearExistence().size()
                 + content.tensuraGearExistence().size() + content.addonGearExistence().size()
                 + content.addonChains().size());
 
@@ -684,6 +719,14 @@ public final class RebalanceContent {
         spotCheckTerminal(errors, content, ISS_GEAR, "tarnished_helmet", 20000, List.of(52000, 225000, 750000),
                 null);
         spotCheckRung(errors, content, ISS_GEAR, "magehunter", 6000, null, null, WEAPON_SPINE, EP_GAIN_STATED);
+
+        // Skipped-gear archetypes (issue #4).
+        spotCheckRung(errors, content, ISS_GEAR, "spell_book", 1000, WIMPY_GATE, ISAS + "wimpy_spell_book",
+                List.of(), null);
+        spotCheckRung(errors, content, ISS_GEAR, "frosted_helve", SCHOOL_TIER_GATE, LEGENDARY_GATE,
+                ISAS + "ice_staff", List.of(), null);
+        spotCheckRung(errors, content, ISS_GEAR, "truthseeker", 15000, MITHRIL_WEAPON_GATE, "tensura:mithril_sword",
+                List.of(18000, 52000), null);
 
         // Addon archetypes (issue #3).
         spotCheckRung(errors, content, WIND_GEAR, "aeromancer_helmet", 5000, MITHRIL_ARMOR_GATE,

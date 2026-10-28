@@ -1,0 +1,6 @@
+{
+  "type": "irons_spellbooks:frosted_helve",
+  "evolution": "irons_spellbooks:ice_staff",
+  "maxEP": 15000,
+  "minEP": 10000
+}
