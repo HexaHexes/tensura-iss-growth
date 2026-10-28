@@ -33,6 +33,65 @@ full plan, research tables and open design decisions.)*
 - **Entity existence bands** where the official integration leaves gaps (for
   example Wind Spellbooks' aeromancer mob).
 
+## Re-banded files
+
+Every row below is generated from the datagen tables in
+[`RebalanceContent`](src/main/java/org/bitwisemadness/tensuraissgrowth/datagen/RebalanceContent.java) —
+the Java tables are the single source of truth, and validation fails the
+build on any drift: **87 same-path overrides + 9 addon chains + 5 Tensura
+receiving rungs = 101 files**.
+
+Native `epGain` is preserved exactly. Where the official file states `0.02`,
+the override writes `0.02`; where it omits the key (35 files), the override
+omits it too, so Tensura's codec default **0.03** — the item's true native
+rate — applies unchanged. Only the nine chain entries carry an explicit
+`0.03`, because Gear Evolution requires the key there.
+
+Hand-offs to Tensura mithril are **single-target** rungs (maintainer decision
+on D1 in #1): forks are used only where equivalent sibling options exist
+(within-tier spell books); GE forks choose among distinct target items, so
+"keep earning" is not a branch option, and a chain entry would make Gear
+Evolution strip the official milestone spine this mod preserves.
+
+### Spell books (16)
+
+| Rungs | Floor | Gate | Becomes | Milestones kept |
+|---|---|---|---|---|
+| `wimpy_spell_book` | 2,000 | 5,000 (chain) | `copper_spell_book` \| `rotten_spell_book` | none (chain-driven) |
+| `copper_spell_book`, `rotten_spell_book` | 5,000 | 6,000 (chain) | `iron_spell_book` \| `blaze_spell_book` | none |
+| `iron_spell_book`, `blaze_spell_book` | 6,000 | 7,000 (chain) | `villager_spell_book` \| `gold_spell_book` | none |
+| `villager_spell_book`, `gold_spell_book` | 7,000 | 8,000 (rung) | `diamond_spell_book` | none (gate below the spine) |
+| `diamond_spell_book` | 8,000 | 10,000 (chain) | `ice_spell_book` \| `druidic_spell_book` \| `netherite_spell_book` | none |
+| `ice_spell_book`, `druidic_spell_book`, `netherite_spell_book` | 10,000 | 15,000 (chain) | the five legendary books | none |
+| `evoker_spell_book`, `cursed_doll_spell_book`, `necronomicon_spell_book`, `dragonskin_spell_book`, `legendary_spell_book` | 15,000 | terminal | — | full weapon spine (18k/52k/225k/750k) |
+
+### Weapons (18)
+
+| Rungs | Floor | Gate | Becomes | Milestones kept |
+|---|---|---|---|---|
+| `magehunter` | 6,000 | terminal | — | full weapon spine |
+| `amethyst_rapier`, `artificer_cane`, `autoloader_crossbow`, `blood_staff`, `boreal_blade`, `decrepit_scythe`, `graybeard_staff`, `hellrazor`, `hither_thither_wand`, `ice_staff`, `keeper_flamberge`, `legionnaire_flamberge`, `lightning_rod`, `misery`, `pyrium_staff`, `spellbreaker`, `twilight_gale` | 15,000 | 225,000 | `tensura:mithril_sword` | 18k, 52k |
+
+### Armor (53)
+
+| Rungs | Floor | Gate | Becomes | Milestones kept |
+|---|---|---|---|---|
+| 11 school sets × 4 slots + `wizard_hat`/`wizard_helmet`/`wizard_chestplate`/`wizard_leggings`/`wizard_boots` (49 pieces) | 5,000 | 750,000 | `tensura:mithril_<slot>` (`wizard_hat` → `mithril_helmet`) | 18k, 52k, 225k |
+| `paladin_chestplate`, `speed_boots` | 15,000 | terminal | — | full armor spine |
+| `infernal_sorcerer_chestplate`, `tarnished_helmet` | 20,000 | terminal | — | 52k, 225k, 750k (18k lies below the floor) |
+
+### Tensura receiving rungs (5)
+
+Shipped at `data/tensura/gear_existence/`, **byte-aligned with
+tensura-iaf-growth** (the sanctioned same-path copy), so the hand-off carry
+lands exactly on the rung's floor instead of past base Tensura's mithril
+gate:
+
+| Rung | Floor | Gate | Becomes | epGain |
+|---|---|---|---|---|
+| `tensura:mithril_sword` | 225,000 | 500,000 | `tensura:adamantite_sword` | 0.025 |
+| `tensura:mithril_helmet`/`chestplate`/`leggings`/`boots` | 750,000 | 1,000,000 | `tensura:adamantite_<slot>` | 0.03 |
+
 ## Getting it in-game
 
 Not yet available - no release has been cut. When the first alpha ships: drop
