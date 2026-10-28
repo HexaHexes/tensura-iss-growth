@@ -1,0 +1,18 @@
+{
+  "type": "allthewizardgear:allthemodium_spell_book",
+  "evolution": "allthewizardgear:vibranium_spell_book",
+  "maxEP": 52000,
+  "minEP": 15000,
+  "uniqueEvolutions": [
+    {
+      "EP": 18000,
+      "attributes": [
+        {
+          "type": "minecraft:generic.attack_damage",
+          "amount": 7.0,
+          "slot": "mainhand"
+        }
+      ]
+    }
+  ]
+}
