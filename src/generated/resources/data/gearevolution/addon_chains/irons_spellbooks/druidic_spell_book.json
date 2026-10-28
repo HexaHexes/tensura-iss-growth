@@ -1,11 +1,11 @@
 {
   "epGain": 0.03,
   "evolutionOptions": [
-    "evoker_spell_book",
-    "cursed_doll_spell_book",
-    "necronomicon_spell_book",
-    "dragonskin_spell_book",
-    "legendary_spell_book"
+    "irons_spellbooks:evoker_spell_book",
+    "irons_spellbooks:cursed_doll_spell_book",
+    "irons_spellbooks:necronomicon_spell_book",
+    "irons_spellbooks:dragonskin_spell_book",
+    "irons_spellbooks:legendary_spell_book"
   ],
   "item": "irons_spellbooks:druidic_spell_book",
   "maxEP": 15000,

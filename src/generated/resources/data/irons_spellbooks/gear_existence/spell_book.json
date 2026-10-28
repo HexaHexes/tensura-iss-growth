@@ -1,6 +1,0 @@
-{
-  "type": "irons_spellbooks:spell_book",
-  "evolution": "irons_spellbooks:wimpy_spell_book",
-  "maxEP": 5000,
-  "minEP": 1000
-}
