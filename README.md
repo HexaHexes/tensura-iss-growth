@@ -2,8 +2,8 @@
 
 A NeoForge mod for the **Tensura RPG** pack (MC 1.21.1) that gives Iron's
 Spells 'n Spellbooks gear a full evolution progression along Tensura's own EP
-ladder, the way this org's Ice and Fire mod does for Ice and Fire equipment.
-The official integration (`tensura_iron_spells`) ships every spell book, mage
+ladder. The official integration (`tensura_iron_spells`) ships every spell
+book, mage
 armor set and spell weapon as a **flat terminal EP band**: gear that earns but
 never climbs. This mod re-weaves those bands into chains. Armor sets, spell
 books and weapons each forge upward, fork at gates, and hand off into Tensura
@@ -90,10 +90,9 @@ Evolution strip the official milestone spine this mod preserves.
 
 ### Tensura receiving rungs (5)
 
-Shipped at `data/tensura/gear_existence/`, **byte-aligned with
-tensura-iaf-growth** (the sanctioned same-path copy), so the hand-off carry
-lands exactly on the rung's floor instead of past base Tensura's mithril
-gate:
+Shipped at `data/tensura/gear_existence/`, byte-aligned with the same-path
+rungs already established there, so the hand-off carry lands exactly on the
+rung's floor instead of past base Tensura's mithril gate:
 
 | Rung | Floor | Gate | Becomes | epGain |
 |---|---|---|---|---|
