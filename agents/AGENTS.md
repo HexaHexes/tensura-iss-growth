@@ -197,20 +197,26 @@ file into this repo verbatim as its own PR - never re-type or patch it by hand.
   review** gate: submission pushes a Gradle dependency snapshot on PRs and
   default-branch pushes (Gradle cannot be parsed statically and no lockfiles
   are committed, so review without submission would compare nothing and pass
-  vacuously), and the review fails a PR that *introduces* a vulnerable or
-  license-incompatible dependency, waiting up to 10 min for the head snapshot
-  (`retry-on-snapshot-warnings`). It is a diff against the merge base, so
-  pre-existing debt never blocks. Defaults only - no license allow/deny lists
-  yet; that policy is a separate decision. Free on public repos. Not a
-  required check initially: observe first, gate later if the signal is good.
-- `version-bump.yml` opens an isolated version-bump PR (only the version file changes).
+  vacuously - snapshots on default-branch pushes are also what makes the diff
+  meaningful: pre-existing advisories sit in base and never block, only
+  *introduced* vulnerable or license-incompatible dependencies do), and the
+  review fails a PR on those findings, waiting up to 10 min for the head
+  snapshot (`retry-on-snapshot-warnings`). Defaults only - no license
+  allow/deny lists yet; that policy is a separate decision. Free on public
+  repos. **Required in `protect-main`** alongside junit/gametest/version-bump/
+  analyze/static (gated after the post-transition observation, template issue
+  #43); the only exclusions are data-only repos where the workflows do not
+  exist (they must never require a check that can never run).- `version-bump.yml` opens an isolated version-bump PR (only the version file changes).
 - `release.yml` publishes a GitHub release for `v<mod_version>` on a push to the default
   branch when that release does not exist yet, attaching the jar the build produced. The
   jar name is read from `mod_id`, so a rename needs no edit here. Pre-releases are
-  opt-in: an `-alpha`/`-beta` version publishes only when the repository variable
-  `ALPHA_RELEASES` is `true`, otherwise it is skipped with a log line rather than a
-  failure. Promoted from `tensura-iaf-growth`, the org's reference implementation, and
-  its release notes are player-facing - rewrite them when promoting the file into a mod.
+  enabled by default: an `-alpha`/`-beta` version publishes on the first push
+  that would create it (the default lives in release.yml as
+  `${ALPHA_RELEASES:-true}` - repository variables cannot ship in template
+  content, so the file carries it); set `ALPHA_RELEASES` to `false` on a repo
+  to opt out, which skips with a log line rather than a failure. Promoted from
+  `tensura-iaf-growth`, the org's reference implementation, and its release
+  notes are player-facing - rewrite them when promoting the file into a mod.
 - `publish.yml` publishes the jar as a Maven artifact to the org's GitHub Packages
   registry whenever a GitHub release is published, via the `maven-publish` block in
   `build.gradle` (artifactId is `mod_id`; pom metadata comes from `gradle.properties`;
