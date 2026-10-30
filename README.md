@@ -126,6 +126,25 @@ Without an addon installed, GE's resolver drops its absent targets: the
 netherite fork rolls among the five ISAS books, the diamond fork among the
 three ISAS school books, and the addon bands simply never match an item.
 
+### Structure magicule + spawn exemptions (infinite-dungeon-spawn-safety)
+
+Every ISAS-family structure lifts the surrounding chunks to at least the
+related mobs' EP baseline (datapack rows read by infinite-dungeon-spawn-safety;
+radii are the structure's grounds scale):
+
+| Structure | Radius | Floor (= related mob baseline) |
+|---|---|---|
+| `irons_spellbooks:catacombs` | 256 | 120,000 (Dead King) |
+| `irons_spellbooks:pyromancer_tower`, `mountain_tower` | 96 | 12,000 (pyromancer / cryomancer) |
+| `irons_spellbooks:citadel`, `evoker_fort`, `mangrove_hut`, `ancient_battleground` | 128 / 128 / 64 / 192 | 10,000 (keeper / archevoker / apothecarist) |
+| `irons_spellbooks:ice_spider_den`, `impaled_icebreaker` | 64 / 96 | 6,000 (ice spider; provisional for the icebreaker) |
+| `wind_spellbooks:windmill` | 64 | 12,000 (aeromancer) |
+
+`wayward_compass_locator` is a locator (not a structure) and priest houses are
+vanilla village pieces (no structure id) - both out of scope. The ISAS bosses
+`dead_king` and `fire_boss` are **exempt** from the spawn-safety gate and
+spawn wherever their encounters take them.
+
 ### Entity existence (1 file)
 
 | Mob | Aura | Magicule | Spiritual health | Abilities |
