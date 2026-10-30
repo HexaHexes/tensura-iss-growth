@@ -1,57 +1,59 @@
 # Tensura - Iron's Spells Growth
 
-A NeoForge mod for the **Tensura RPG** pack (MC 1.21.1) that gives Iron's Spells
-'n Spellbooks gear a full evolution progression along Tensura's own EP ladder,
-the way this org's Ice and Fire mod does for Ice and Fire equipment. The
-official integration (`tensura_iron_spells`) ships every spell book, mage armor
-set and spell weapon as a **flat terminal EP band** - gear that earns but never
-climbs. This mod re-weaves those bands into chains: armor sets, spell books and
-weapons each forge upward, fork at gates, and hand off into Tensura metals, so a
-wizard's kit grows with their power instead of stalling at its spawn floor.
+A NeoForge mod for the **Tensura RPG** pack (MC 1.21.1) that gives Iron's
+Spells 'n Spellbooks gear a full evolution progression along Tensura's own EP
+ladder. The official integration (`tensura_iron_spells`) ships every spell
+book, mage
+armor set and spell weapon as a **flat terminal EP band**: gear that earns but
+never climbs. This mod re-weaves those bands into chains. Armor sets, spell
+books and weapons each forge upward, fork at gates, and hand off into Tensura
+metals, so a wizard's kit grows with their power instead of stalling at its
+spawn floor.
 
 ## What it does
 
-*(Design phase - no release yet. The open issues on this repository hold the
-full plan, research tables and open design decisions.)*
+*(Design phase. No release has been cut yet. The open issues on this repository
+hold the full plan, research tables and open design decisions.)*
 
-- **Re-weaves the official integration's bands.** Same-path overrides of the
+- Re-weaves the official integration's bands. Same-path overrides of the
   `tensura_iron_spells` gear files plus Gear Evolution addon chains, following
   the house doctrines: native floors and EP rates preserved, no tier skips,
   fork points inert with chains, terminals keep earning.
-- **Spell books climb their tier ladder** - wimpy, copper, iron, gold, diamond,
-  netherite, legendary and the school books (ice, blaze, druidic, evoker,
-  necronomicon, cursed doll, dragonskin) each progress rather than sit terminal.
-- **Mage armor sets and spell weapons weave upward** toward the Tensura metal
+- Spell books climb their tier ladder: wimpy, copper, iron, gold, diamond,
+  netherite and legendary, plus the school books (ice, blaze, druidic, evoker,
+  necronomicon, cursed doll, dragonskin), each progress rather than sit
+  terminal.
+- Mage armor sets and spell weapons weave upward toward the Tensura metal
   spine at the same gates Tensura gear of that tier climbs.
-- **Covers gear the official integration misses** - frosted helve, staff of
-  the nines, claymore and cinderous soulcaller. The plan's other four
-  candidates ("improved blood staff", "illusioner spell book", `truthseeker`
-  and the base `spell_book`) exist only as orphan model/lang entries in
-  Iron's Spells 3.16.3 - no registry id, nothing to band (verified by
-  scanning every class in the jar, and by the datapack GameTest).
-- **Optional addon integrations**, inert when the addon is absent: AllTheWizard
+- Covers gear the official integration misses: frosted helve, staff of the
+  nines, claymore and cinderous soulcaller. The plan's other four candidates
+  ("improved blood staff", "illusioner spell book", `truthseeker` and the base
+  `spell_book`) exist only as orphan model/lang entries in Iron's Spells
+  3.16.3, with no registry id and nothing to band (verified by scanning every
+  class in the jar, and by the datapack GameTest).
+- Optional addon integrations, inert when the addon is absent: AllTheWizard
   Gear (allthemodium/vibranium/unobtainium mage gear), Wind Spellbooks (wind
   school, aeromancer set, wind staff), Leylines (ley staff, leyline codex),
   Resonant Arcana (deathchill/phoenix/runic echoes spell books).
-- **Entity existence bands** where the official integration leaves gaps (for
+- Entity existence bands where the official integration leaves gaps (for
   example Wind Spellbooks' aeromancer mob).
 
 ## Re-banded files
 
 Every row below is generated from the datagen tables in
-[`RebalanceContent`](src/main/java/org/bitwisemadness/tensuraissgrowth/datagen/RebalanceContent.java) —
-the Java tables are the single source of truth, and validation fails the
+[`RebalanceContent`](src/main/java/org/bitwisemadness/tensuraissgrowth/datagen/RebalanceContent.java).
+The Java tables are the single source of truth, and validation fails the
 build on any drift: **87 same-path overrides + 9 addon chains + 5 Tensura
 receiving rungs = 101 files**.
 
 Native `epGain` is preserved exactly. Where the official file states `0.02`,
 the override writes `0.02`; where it omits the key (35 files), the override
-omits it too, so Tensura's codec default **0.03** — the item's true native
-rate — applies unchanged. Only the nine chain entries carry an explicit
+omits it too, so Tensura's codec default **0.03**, the item's true native
+rate, applies unchanged. Only the nine chain entries carry an explicit
 `0.03`, because Gear Evolution requires the key there.
 
 Hand-offs to Tensura mithril are **single-target** rungs (maintainer decision
-on D1 in #1): forks are used only where equivalent sibling options exist
+on D1 in #1). Forks are used only where equivalent sibling options exist
 (within-tier spell books); GE forks choose among distinct target items, so
 "keep earning" is not a branch option, and a chain entry would make Gear
 Evolution strip the official milestone spine this mod preserves.
@@ -85,10 +87,9 @@ Evolution strip the official milestone spine this mod preserves.
 
 ### Tensura receiving rungs (5)
 
-Shipped at `data/tensura/gear_existence/`, **byte-aligned with
-tensura-iaf-growth** (the sanctioned same-path copy), so the hand-off carry
-lands exactly on the rung's floor instead of past base Tensura's mithril
-gate:
+Shipped at `data/tensura/gear_existence/`, byte-aligned with the same-path
+rungs already established there, so the hand-off carry lands exactly on the
+rung's floor instead of past base Tensura's mithril gate:
 
 | Rung | Floor | Gate | Becomes | epGain |
 |---|---|---|---|---|
@@ -102,9 +103,9 @@ gate:
 
 ### Optional addon integrations (27 files)
 
-Bands for the four ISAS addons — the files ship unconditionally and are inert
+Bands for the four ISAS addons. The files ship unconditionally and are inert
 when the addon is absent (item-id lookup simply misses). Placement per D4 in
-#1; epGain omitted everywhere it has no native source, i.e. the codec default
+#1; epGain is omitted everywhere it has no native source, so the codec default
 0.03 applies, except the aeromancer set which joins the school weave at the
 stated 0.02.
 
@@ -135,12 +136,6 @@ Banded at the official integration's wizard-mage tier (the cryomancer /
 priest / pyromancer bands). Leylines' nightborn_elf is worldgen/faction
 content, not a combat mob, and is deliberately unbanded; the official 18
 ISAS bands are untouched (D2 in #1).
-
-## Getting it in-game
-
-Not yet available - no release has been cut. When the first alpha ships: drop
-the jar in `mods/` alongside Tensura: Reincarnated and Iron's Spells, and the
-rebalanced datapack inside the jar applies itself on world load.
 
 ## Dependencies
 
