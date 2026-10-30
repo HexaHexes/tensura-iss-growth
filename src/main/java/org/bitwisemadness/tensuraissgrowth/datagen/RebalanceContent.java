@@ -237,7 +237,9 @@ public final class RebalanceContent {
             Map<String, JsonObject> tensuraGearExistence,
             Map<String, JsonObject> addonGearExistence,
             Map<String, JsonObject> addonChains,
-            Map<String, JsonObject> entityExistence) {
+            Map<String, JsonObject> entityExistence,
+            Map<String, JsonObject> structureMagicule,
+            Map<String, JsonObject> safetyExempt) {
     }
 
     public static Content build() {
@@ -247,6 +249,8 @@ public final class RebalanceContent {
         Map<String, JsonObject> addonGear = new LinkedHashMap<>();
         Map<String, JsonObject> chains = new LinkedHashMap<>();
         Map<String, JsonObject> entities = new LinkedHashMap<>();
+        Map<String, JsonObject> structures = new LinkedHashMap<>();
+        Map<String, JsonObject> exempt = new LinkedHashMap<>();
 
         addSpellBooks(issGear, chains);
         addWeapons(issGear);
@@ -256,8 +260,10 @@ public final class RebalanceContent {
         addMithrilRunners(tensuraGear);
         addAddonGear(addonGear, chains);
         addEntityBands(entities);
+        addStructureData(structures, exempt);
 
-        Content content = new Content(geGear, issGear, tensuraGear, addonGear, chains, entities);
+        Content content = new Content(geGear, issGear, tensuraGear, addonGear, chains, entities,
+                structures, exempt);
         validate(content);
         return content;
     }
@@ -516,6 +522,69 @@ public final class RebalanceContent {
         return json;
     }
 
+    // --- Structure elevation + spawn exemptions (infinite-dungeon-spawn-safety) ---
+    //
+    // Pack rule: every ISAS-family structure's surrounding chunks carry at
+    // least the magicule baseline of the mobs related to it. Elevations are
+    // the residents' EP band maxima (NBT-proven palettes for the big
+    // dungeons); wayward_compass_locator is a locator, not a structure, and
+    // priest houses are vanilla village pieces with no structure id - both
+    // out of scope.
+
+    /** structure id -> [radius, elevation], id order, one row per physical structure. */
+    private static final String[][] ISAS_STRUCTURE_ELEVATIONS = {
+            {"irons_spellbooks:ancient_battleground", "192", "10000"},
+            {"irons_spellbooks:catacombs", "256", "120000"},
+            {"irons_spellbooks:citadel", "128", "10000"},
+            {"irons_spellbooks:evoker_fort", "128", "10000"},
+            {"irons_spellbooks:ice_spider_den", "64", "6000"},
+            {"irons_spellbooks:impaled_icebreaker", "96", "6000"},
+            {"irons_spellbooks:mangrove_hut", "64", "10000"},
+            {"irons_spellbooks:mountain_tower", "96", "12000"},
+            {"irons_spellbooks:pyromancer_tower", "96", "12000"},
+    };
+
+    /** Wind Spellbooks' structure ships under its own namespace (path ownership). */
+    private static final String[][] WIND_STRUCTURE_ELEVATIONS = {
+            {"wind_spellbooks:windmill", "64", "12000"},
+    };
+
+    /** The ISAS bosses this module must never gate: their baselines outstrip the world. */
+    private static final String[] SPAWN_EXEMPT = {
+            "irons_spellbooks:dead_king",
+            "irons_spellbooks:fire_boss",
+    };
+
+    private static void addStructureData(Map<String, JsonObject> structures,
+                                         Map<String, JsonObject> exempt) {
+        put(structures, "data/irons_spellbooks/infinite_dungeon/structure_magicule/structures.json",
+                structureFile(ISAS_STRUCTURE_ELEVATIONS));
+        put(structures, "data/wind_spellbooks/infinite_dungeon/structure_magicule/structures.json",
+                structureFile(WIND_STRUCTURE_ELEVATIONS));
+
+        JsonArray entities = new JsonArray();
+        for (String id : SPAWN_EXEMPT) {
+            entities.add(id);
+        }
+        JsonObject exemptJson = new JsonObject();
+        exemptJson.add("entities", entities);
+        put(exempt, "data/irons_spellbooks/infinite_dungeon/safety/exempt.json", exemptJson);
+    }
+
+    private static JsonObject structureFile(String[][] rows) {
+        JsonArray array = new JsonArray();
+        for (String[] row : rows) {
+            JsonObject entry = new JsonObject();
+            entry.addProperty("structure", row[0]);
+            entry.addProperty("radius", Double.parseDouble(row[1]));
+            entry.addProperty("elevation", Double.parseDouble(row[2]));
+            array.add(entry);
+        }
+        JsonObject json = new JsonObject();
+        json.add("structures", array);
+        return json;
+    }
+
     // --- Milestone builders -------------------------------------------------------
 
     /** Weapon-spine bumps an item between {@code floor} and {@code gate} can actually fire. */
@@ -659,10 +728,28 @@ public final class RebalanceContent {
         expect(errors, "tensura receiving rungs", 5, content.tensuraGearExistence().size());
         expect(errors, "gear_existence files under the GE namespace (no ISS builtins to neutralise)", 0,
                 content.geGearExistence().size());
-        expect(errors, "total files", 133, content.geGearExistence().size() + content.issGearExistence().size()
+        expect(errors, "structure elevation files", 2, content.structureMagicule().size());
+        expect(errors, "spawn exemption files", 1, content.safetyExempt().size());
+        expect(errors, "total files", 136, content.geGearExistence().size() + content.issGearExistence().size()
                 + content.tensuraGearExistence().size() + content.addonGearExistence().size()
-                + content.addonChains().size() + content.entityExistence().size());
+                + content.addonChains().size() + content.entityExistence().size()
+                + content.structureMagicule().size() + content.safetyExempt().size());
         expect(errors, "entity existence bands", 1, content.entityExistence().size());
+
+        // The pack rule's headline rows: the Dead King's catacombs floor at his
+        // own band maximum, the windmill at the aeromancer's.
+        expectStructureRow(errors, content,
+                "data/irons_spellbooks/infinite_dungeon/structure_magicule/structures.json",
+                "irons_spellbooks:catacombs", 256.0, 120000.0);
+        expectStructureRow(errors, content,
+                "data/wind_spellbooks/infinite_dungeon/structure_magicule/structures.json",
+                "wind_spellbooks:windmill", 64.0, 12000.0);
+        expect(errors, "ISAS structure elevation rows", ISAS_STRUCTURE_ELEVATIONS.length,
+                structureRowCount(content, "data/irons_spellbooks/infinite_dungeon/structure_magicule/structures.json"));
+        if (!exemptContains(content, "irons_spellbooks:dead_king")
+                || !exemptContains(content, "irons_spellbooks:fire_boss")) {
+            errors.add("the spawn exemptions must cover the Dead King and the fire boss");
+        }
 
         for (Map.Entry<String, JsonObject> entry : content.entityExistence().entrySet()) {
             String label = entry.getKey();
@@ -884,6 +971,50 @@ public final class RebalanceContent {
 
     private static int count(Map<String, JsonObject> files, FilePredicate predicate) {
         return (int) files.values().stream().filter(predicate::test).count();
+    }
+
+    /** The number of rows inside one generated structures file. */
+    private static int structureRowCount(Content content, String path) {
+        JsonObject json = content.structureMagicule().get(path);
+        return json == null || !json.has("structures") ? 0 : json.getAsJsonArray("structures").size();
+    }
+
+    /** Whether the generated exempt file lists the entity id. */
+    private static boolean exemptContains(Content content, String entityId) {
+        JsonObject json = content.safetyExempt()
+                .get("data/irons_spellbooks/infinite_dungeon/safety/exempt.json");
+        if (json == null || !json.has("entities")) {
+            return false;
+        }
+        for (var element : json.getAsJsonArray("entities")) {
+            if (entityId.equals(element.getAsString())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Pins one structure row: floor and radius must match the pack rule's table. */
+    private static void expectStructureRow(List<String> errors, Content content, String path,
+                                           String structure, double radius, double elevation) {
+        JsonObject json = content.structureMagicule().get(path);
+        if (json == null || !json.has("structures")) {
+            errors.add(path + ": structure elevation file missing");
+            return;
+        }
+        for (var element : json.getAsJsonArray("structures")) {
+            JsonObject row = element.getAsJsonObject();
+            if (structure.equals(row.get("structure").getAsString())) {
+                if (row.get("radius").getAsDouble() != radius
+                        || row.get("elevation").getAsDouble() != elevation) {
+                    errors.add(structure + ": expected radius " + radius + " elevation " + elevation
+                            + ", found radius " + row.get("radius").getAsDouble()
+                            + " elevation " + row.get("elevation").getAsDouble());
+                }
+                return;
+            }
+        }
+        errors.add(structure + ": no structure elevation row");
     }
 
     private static void expect(List<String> errors, String what, int wanted, int found) {

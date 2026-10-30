@@ -55,6 +55,10 @@ public final class TensuraIssGameTests {
         checkGearMap(content.addonGearExistence());
         checkChains(content.addonChains());
         checkEntities(content.entityExistence());
+        // Structure-elevation and exemption files must ship too - they are the
+        // datapack half of the spawn-safety contract.
+        content.structureMagicule().keySet().forEach(TensuraIssGameTests::requireResource);
+        content.safetyExempt().keySet().forEach(TensuraIssGameTests::requireResource);
 
         helper.succeed();
     }
