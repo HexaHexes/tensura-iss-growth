@@ -12,11 +12,8 @@ spawn floor.
 
 ## What it does
 
-*(Design phase. No release has been cut yet. When the first alpha ships, the
-jar goes in `mods/` alongside Tensura: Reincarnated and Iron's Spells, and the
-rebalanced datapack inside the jar applies itself on world load. The open
-issues on this repository hold the full plan, research tables and open design
-decisions.)*
+*(Design phase. No release has been cut yet. The open issues on this repository
+hold the full plan, research tables and open design decisions.)*
 
 - Re-weaves the official integration's bands. Same-path overrides of the
   `tensura_iron_spells` gear files plus Gear Evolution addon chains, following
