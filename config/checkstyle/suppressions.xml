@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suppressions PUBLIC "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN" "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<!-- Grandfathered findings from the Checkstyle pull: burn-down only, never new code. -->
+<suppressions>
+    <suppress checks="RegexpMultiline" files="RebalanceContent.java" lines="135"/>
+    <suppress checks="RegexpMultiline" files="RebalanceContent.java" lines="285"/>
+    <suppress checks="RegexpMultiline" files="RebalanceContent.java" lines="316"/>
+    <suppress checks="RegexpMultiline" files="RebalanceContent.java" lines="525"/>
+    <suppress checks="RegexpMultiline" files="RebalanceContent.java" lines="949"/>
+</suppressions>
