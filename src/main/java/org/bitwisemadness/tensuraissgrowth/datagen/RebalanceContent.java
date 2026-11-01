@@ -950,10 +950,9 @@ public final class RebalanceContent {
                 {"type":"tensura:mithril_sword","minEP":225000,"maxEP":500000,"epGain":0.025,
                  "engravings":{"tensura:holy_coat":2},"evolution":"tensura:adamantite_sword"}""");
         for (String slot : SCHOOL_SLOTS) {
-            // Substituted rather than formatted: both placeholders always carry the
-            // same slot, and the template's line feed must stay a literal - the
-            // generated files are byte-aligned with tensura-iaf-growth's LF output
-            // on every platform, so %n (platform newline) would break the copy.
+            // Substituted, not formatted: %n would be a platform newline, and the
+            // generated files are byte-aligned with tensura-iaf-growth's LF output,
+            // so both placeholders are replaced with the slot instead.
             expectJson(errors, "mithril_" + slot + ".json", content, TENSURA_GEAR + "mithril_" + slot + ".json", """
                     {"type":"tensura:mithril_%s","minEP":750000,"maxEP":1000000,"epGain":0.03,
                      "engravings":{"tensura:holy_coat":2},"evolution":"tensura:adamantite_%s"}"""
