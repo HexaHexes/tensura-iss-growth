@@ -129,16 +129,18 @@ three ISAS school books, and the addon bands simply never match an item.
 ### Structure magicule + spawn exemptions (infinite-dungeon-spawn-safety)
 
 Every ISAS-family structure lifts the surrounding chunks to at least the
-related mobs' EP baseline (datapack rows read by infinite-dungeon-spawn-safety;
-radii are the structure's grounds scale):
+related mobs' EP baseline (datapack rows read by infinite-dungeon-spawn-safety).
+Each row carries only the **floor**; the **reach is derived** by the consumer
+(`clamp(sqrt(baseline) * 0.35, 48, 320)` blocks), so the catacombs radiate
+across ~121 blocks while the 6,000-baseline dens stay near the 48-block floor:
 
-| Structure | Radius | Floor (= related mob baseline) |
+| Structure | Floor (= related mob baseline) | Reach (derived) |
 |---|---|---|
-| `irons_spellbooks:catacombs` | 256 | 120,000 (Dead King) |
-| `irons_spellbooks:pyromancer_tower`, `mountain_tower` | 96 | 12,000 (pyromancer / cryomancer) |
-| `irons_spellbooks:citadel`, `evoker_fort`, `mangrove_hut`, `ancient_battleground` | 128 / 128 / 64 / 192 | 10,000 (keeper / archevoker / apothecarist) |
-| `irons_spellbooks:ice_spider_den`, `impaled_icebreaker` | 64 / 96 | 6,000 (ice spider; provisional for the icebreaker) |
-| `wind_spellbooks:windmill` | 64 | 12,000 (aeromancer) |
+| `irons_spellbooks:catacombs` | 120,000 (Dead King) | ~121 |
+| `irons_spellbooks:pyromancer_tower`, `mountain_tower` | 12,000 (pyromancer / cryomancer) | ~48 |
+| `irons_spellbooks:citadel`, `evoker_fort`, `mangrove_hut`, `ancient_battleground` | 10,000 (keeper / archevoker / apothecarist) | ~48 |
+| `irons_spellbooks:ice_spider_den`, `impaled_icebreaker` | 6,000 (ice spider; provisional for the icebreaker) | ~48 |
+| `wind_spellbooks:windmill` | 12,000 (aeromancer) | ~48 |
 
 `wayward_compass_locator` is a locator (not a structure) and priest houses are
 vanilla village pieces (no structure id) - both out of scope. The ISAS bosses

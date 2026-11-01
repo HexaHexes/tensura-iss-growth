@@ -2,7 +2,6 @@
   "structures": [
     {
       "elevation": 12000.0,
-      "radius": 64.0,
       "structure": "wind_spellbooks:windmill"
     }
   ]

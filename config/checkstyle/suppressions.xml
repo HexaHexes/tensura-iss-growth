@@ -6,5 +6,4 @@
     <suppress checks="RegexpMultiline" files="RebalanceContent.java" lines="285"/>
     <suppress checks="RegexpMultiline" files="RebalanceContent.java" lines="316"/>
     <suppress checks="RegexpMultiline" files="RebalanceContent.java" lines="525"/>
-    <suppress checks="RegexpMultiline" files="RebalanceContent.java" lines="949"/>
 </suppressions>

@@ -531,22 +531,27 @@ public final class RebalanceContent {
     // priest houses are vanilla village pieces with no structure id - both
     // out of scope.
 
-    /** structure id -> [radius, elevation], id order, one row per physical structure. */
+    /**
+     * structure id -> elevation (the residents' EP baseline), id order, one row
+     * per physical structure. The reach is not carried here: the consumer
+     * derives it from the baseline (clamp(sqrt(baseline) * 0.35, 48, 320)
+     * blocks), so the catacombs reach far wider than a tower.
+     */
     private static final String[][] ISAS_STRUCTURE_ELEVATIONS = {
-            {"irons_spellbooks:ancient_battleground", "192", "10000"},
-            {"irons_spellbooks:catacombs", "256", "120000"},
-            {"irons_spellbooks:citadel", "128", "10000"},
-            {"irons_spellbooks:evoker_fort", "128", "10000"},
-            {"irons_spellbooks:ice_spider_den", "64", "6000"},
-            {"irons_spellbooks:impaled_icebreaker", "96", "6000"},
-            {"irons_spellbooks:mangrove_hut", "64", "10000"},
-            {"irons_spellbooks:mountain_tower", "96", "12000"},
-            {"irons_spellbooks:pyromancer_tower", "96", "12000"},
+            {"irons_spellbooks:ancient_battleground", "10000"},
+            {"irons_spellbooks:catacombs", "120000"},
+            {"irons_spellbooks:citadel", "10000"},
+            {"irons_spellbooks:evoker_fort", "10000"},
+            {"irons_spellbooks:ice_spider_den", "6000"},
+            {"irons_spellbooks:impaled_icebreaker", "6000"},
+            {"irons_spellbooks:mangrove_hut", "10000"},
+            {"irons_spellbooks:mountain_tower", "12000"},
+            {"irons_spellbooks:pyromancer_tower", "12000"},
     };
 
     /** Wind Spellbooks' structure ships under its own namespace (path ownership). */
     private static final String[][] WIND_STRUCTURE_ELEVATIONS = {
-            {"wind_spellbooks:windmill", "64", "12000"},
+            {"wind_spellbooks:windmill", "12000"},
     };
 
     /** The ISAS bosses this module must never gate: their baselines outstrip the world. */
@@ -576,8 +581,7 @@ public final class RebalanceContent {
         for (String[] row : rows) {
             JsonObject entry = new JsonObject();
             entry.addProperty("structure", row[0]);
-            entry.addProperty("radius", Double.parseDouble(row[1]));
-            entry.addProperty("elevation", Double.parseDouble(row[2]));
+            entry.addProperty("elevation", Double.parseDouble(row[1]));
             array.add(entry);
         }
         JsonObject json = new JsonObject();
@@ -740,10 +744,10 @@ public final class RebalanceContent {
         // own band maximum, the windmill at the aeromancer's.
         expectStructureRow(errors, content,
                 "data/irons_spellbooks/infinite_dungeon/structure_magicule/structures.json",
-                "irons_spellbooks:catacombs", 256.0, 120000.0);
+                "irons_spellbooks:catacombs", 120000.0);
         expectStructureRow(errors, content,
                 "data/wind_spellbooks/infinite_dungeon/structure_magicule/structures.json",
-                "wind_spellbooks:windmill", 64.0, 12000.0);
+                "wind_spellbooks:windmill", 12000.0);
         expect(errors, "ISAS structure elevation rows", ISAS_STRUCTURE_ELEVATIONS.length,
                 structureRowCount(content, "data/irons_spellbooks/infinite_dungeon/structure_magicule/structures.json"));
         if (!exemptContains(content, "irons_spellbooks:dead_king")
@@ -946,10 +950,9 @@ public final class RebalanceContent {
                 {"type":"tensura:mithril_sword","minEP":225000,"maxEP":500000,"epGain":0.025,
                  "engravings":{"tensura:holy_coat":2},"evolution":"tensura:adamantite_sword"}""");
         for (String slot : SCHOOL_SLOTS) {
-            // Substituted rather than formatted: both placeholders always carry the
-            // same slot, and the template's line feed must stay a literal - the
-            // generated files are byte-aligned with tensura-iaf-growth's LF output
-            // on every platform, so %n (platform newline) would break the copy.
+            // Substituted, not formatted: %n would be a platform newline, and the
+            // generated files are byte-aligned with tensura-iaf-growth's LF output,
+            // so both placeholders are replaced with the slot instead.
             expectJson(errors, "mithril_" + slot + ".json", content, TENSURA_GEAR + "mithril_" + slot + ".json", """
                     {"type":"tensura:mithril_%s","minEP":750000,"maxEP":1000000,"epGain":0.03,
                      "engravings":{"tensura:holy_coat":2},"evolution":"tensura:adamantite_%s"}"""
@@ -994,9 +997,9 @@ public final class RebalanceContent {
         return false;
     }
 
-    /** Pins one structure row: floor and radius must match the pack rule's table. */
+    /** Pins one structure row: its baseline must match the pack rule's table. */
     private static void expectStructureRow(List<String> errors, Content content, String path,
-                                           String structure, double radius, double elevation) {
+                                           String structure, double elevation) {
         JsonObject json = content.structureMagicule().get(path);
         if (json == null || !json.has("structures")) {
             errors.add(path + ": structure elevation file missing");
@@ -1005,11 +1008,9 @@ public final class RebalanceContent {
         for (var element : json.getAsJsonArray("structures")) {
             JsonObject row = element.getAsJsonObject();
             if (structure.equals(row.get("structure").getAsString())) {
-                if (row.get("radius").getAsDouble() != radius
-                        || row.get("elevation").getAsDouble() != elevation) {
-                    errors.add(structure + ": expected radius " + radius + " elevation " + elevation
-                            + ", found radius " + row.get("radius").getAsDouble()
-                            + " elevation " + row.get("elevation").getAsDouble());
+                if (row.get("elevation").getAsDouble() != elevation) {
+                    errors.add(structure + ": expected elevation " + elevation
+                            + ", found elevation " + row.get("elevation").getAsDouble());
                 }
                 return;
             }
