@@ -2,47 +2,38 @@
   "structures": [
     {
       "elevation": 10000.0,
-      "radius": 192.0,
       "structure": "irons_spellbooks:ancient_battleground"
     },
     {
       "elevation": 120000.0,
-      "radius": 256.0,
       "structure": "irons_spellbooks:catacombs"
     },
     {
       "elevation": 10000.0,
-      "radius": 128.0,
       "structure": "irons_spellbooks:citadel"
     },
     {
       "elevation": 10000.0,
-      "radius": 128.0,
       "structure": "irons_spellbooks:evoker_fort"
     },
     {
       "elevation": 6000.0,
-      "radius": 64.0,
       "structure": "irons_spellbooks:ice_spider_den"
     },
     {
       "elevation": 6000.0,
-      "radius": 96.0,
       "structure": "irons_spellbooks:impaled_icebreaker"
     },
     {
       "elevation": 10000.0,
-      "radius": 64.0,
       "structure": "irons_spellbooks:mangrove_hut"
     },
     {
       "elevation": 12000.0,
-      "radius": 96.0,
       "structure": "irons_spellbooks:mountain_tower"
     },
     {
       "elevation": 12000.0,
-      "radius": 96.0,
       "structure": "irons_spellbooks:pyromancer_tower"
     }
   ]
